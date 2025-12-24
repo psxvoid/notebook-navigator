@@ -404,6 +404,104 @@ export function normalizeCanonicalIconId(iconId: string): string {
     return `${providerId}:${normalized}`;
 }
 
+export function normalizeFileTypeIconMapKey(input: string): string {
+    return input.trim().replace(/^\./, '').toLowerCase();
+}
+
+export function normalizeFileNameIconMapKey(input: string): string {
+    return input.trim().toLowerCase();
+}
+
+interface NormalizedIconMapEntry {
+    key: string;
+    iconId: string;
+}
+
+export interface IconMapParseResult {
+    map: Record<string, string>;
+    invalidLines: string[];
+}
+
+export function normalizeIconMapEntry(key: string, iconId: string, normalizeKey: (input: string) => string): NormalizedIconMapEntry | null {
+    const normalizedKey = normalizeKey(key);
+    if (!normalizedKey) {
+        return null;
+    }
+
+    const canonicalIconId = normalizeCanonicalIconId(iconId);
+    if (!canonicalIconId) {
+        return null;
+    }
+
+    return { key: normalizedKey, iconId: canonicalIconId };
+}
+
+export function normalizeIconMapRecord(record: Record<string, string>, normalizeKey: (input: string) => string): Record<string, string> {
+    const normalized = Object.create(null) as Record<string, string>;
+
+    Object.entries(record).forEach(([key, value]) => {
+        if (typeof value !== 'string') {
+            return;
+        }
+
+        const normalizedEntry = normalizeIconMapEntry(key, value, normalizeKey);
+        if (!normalizedEntry) {
+            return;
+        }
+
+        normalized[normalizedEntry.key] = normalizedEntry.iconId;
+    });
+
+    return normalized;
+}
+
+export function serializeIconMapRecord(map: Record<string, string>): string {
+    const entries = Object.entries(map)
+        .filter(([key, iconId]) => Boolean(key) && Boolean(iconId))
+        .sort(([a], [b]) => a.localeCompare(b));
+
+    return entries.map(([key, iconId]) => `${key}=${iconId}`).join('\n');
+}
+
+export function parseIconMapText(value: string, normalizeKey: (input: string) => string): IconMapParseResult {
+    const map = Object.create(null) as Record<string, string>;
+    const invalidLines: string[] = [];
+
+    const lines = value.replace(/\r\n/g, '\n').split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        const rawLine = lines[i];
+        const trimmed = rawLine.trim();
+
+        if (!trimmed || trimmed.startsWith('#')) {
+            continue;
+        }
+
+        const separatorIndex = trimmed.indexOf('=');
+        const altSeparatorIndex = trimmed.indexOf(':');
+        const hasEquals = separatorIndex !== -1;
+        const hasColon = altSeparatorIndex !== -1;
+
+        const splitIndex = hasEquals ? separatorIndex : hasColon ? altSeparatorIndex : -1;
+        if (splitIndex === -1) {
+            invalidLines.push(trimmed);
+            continue;
+        }
+
+        const rawKey = trimmed.substring(0, splitIndex).trim();
+        const rawIconId = trimmed.substring(splitIndex + 1).trim();
+
+        const normalizedEntry = normalizeIconMapEntry(rawKey, rawIconId, normalizeKey);
+        if (!normalizedEntry) {
+            invalidLines.push(trimmed);
+            continue;
+        }
+
+        map[normalizedEntry.key] = normalizedEntry.iconId;
+    }
+
+    return { map, invalidLines };
+}
+
 /**
  * Serializes a canonical icon identifier to the value stored in frontmatter.
  * Returns null when the icon cannot be normalized.

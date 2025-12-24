@@ -23,7 +23,7 @@
 import { TFile, TFolder, type WorkspaceLeaf } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 import { strings } from '../../i18n';
-import { isFolderNote, isSupportedFolderNoteExtension } from '../../utils/folderNotes';
+import { getFolderNote, isFolderNote, isSupportedFolderNoteExtension, type FolderNoteDetectionSettings } from '../../utils/folderNotes';
 import { isFolderInExcludedFolder, shouldExcludeFile } from '../../utils/fileFilters';
 import { getEffectiveFrontmatterExclusions, isFileHiddenBySettings } from '../../utils/exclusionUtils';
 import { runAsyncAction } from '../../utils/async';
@@ -195,6 +195,26 @@ async function selectAdjacentFileWithoutNavigatorView(plugin: NotebookNavigatorP
     }
 
     return true;
+}
+
+function getFolderNoteDetectionSettings(plugin: NotebookNavigatorPlugin): FolderNoteDetectionSettings {
+    return {
+        enableFolderNotes: plugin.settings.enableFolderNotes,
+        folderNoteName: plugin.settings.folderNoteName
+    };
+}
+
+/**
+ * Returns the selected folder from navigator state
+ */
+function getSelectedFolderForCommand(plugin: NotebookNavigatorPlugin): TFolder | null {
+    const api = plugin.api;
+    if (!api) {
+        return null;
+    }
+
+    const navItem = api.selection.getNavItem();
+    return navItem.folder instanceof TFolder ? navItem.folder : null;
 }
 
 /**
@@ -519,15 +539,6 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 return false;
             }
 
-            if (
-                isFolderNote(activeFile, parent, {
-                    enableFolderNotes: plugin.settings.enableFolderNotes,
-                    folderNoteName: plugin.settings.folderNoteName
-                })
-            ) {
-                return false;
-            }
-
             const fileSystemOps = plugin.fileSystemOps;
             if (!fileSystemOps) {
                 return false;
@@ -543,12 +554,88 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
         }
     });
 
+    // Command to rename the active file to its folder note name
+    plugin.addCommand({
+        id: 'set-as-folder-note',
+        name: strings.commands.setAsFolderNote,
+        checkCallback: (checking: boolean) => {
+            const activeFile = plugin.app.workspace.getActiveFile();
+            if (!activeFile) {
+                return false;
+            }
+
+            if (!plugin.settings.enableFolderNotes) {
+                return false;
+            }
+
+            if (!isSupportedFolderNoteExtension(activeFile.extension)) {
+                return false;
+            }
+
+            const parent = activeFile.parent;
+            if (!parent || !(parent instanceof TFolder)) {
+                return false;
+            }
+
+            if (parent.path === '/') {
+                return false;
+            }
+
+            const fileSystemOps = plugin.fileSystemOps;
+            if (!fileSystemOps) {
+                return false;
+            }
+
+            if (checking) {
+                return true;
+            }
+
+            runAsyncAction(() => fileSystemOps.setFileAsFolderNote(activeFile, plugin.settings));
+            return true;
+        }
+    });
+
+    // Command to detach the folder note in the selected folder
+    plugin.addCommand({
+        id: 'detach-folder-note',
+        name: strings.commands.detachFolderNote,
+        checkCallback: (checking: boolean) => {
+            if (!plugin.settings.enableFolderNotes) {
+                return false;
+            }
+
+            const fileSystemOps = plugin.fileSystemOps;
+            if (!fileSystemOps) {
+                return false;
+            }
+
+            if (checking) {
+                return true;
+            }
+
+            const selectedFolder = getSelectedFolderForCommand(plugin);
+            if (!selectedFolder) {
+                showNotice(strings.fileSystem.errors.noFolderSelected, { variant: 'warning' });
+                return true;
+            }
+
+            const folderNote = getFolderNote(selectedFolder, getFolderNoteDetectionSettings(plugin));
+
+            if (!folderNote) {
+                showNotice(strings.fileSystem.errors.folderNoteNotFound, { variant: 'warning' });
+                return true;
+            }
+
+            runAsyncAction(() => fileSystemOps.renameFile(folderNote));
+            return true;
+        }
+    });
+
     // Command to pin all folder notes to the shortcuts list
     plugin.addCommand({
         id: 'pin-all-folder-notes',
         name: strings.commands.pinAllFolderNotes,
         checkCallback: (checking: boolean) => {
-            // Command only available when folder notes are enabled
             if (!plugin.settings.enableFolderNotes) {
                 return false;
             }
@@ -558,73 +645,63 @@ export default function registerNavigatorCommands(plugin: NotebookNavigatorPlugi
                 return false;
             }
 
-            // Settings object for folder note detection
-            const folderNoteSettings = {
-                enableFolderNotes: plugin.settings.enableFolderNotes,
-                folderNoteName: plugin.settings.folderNoteName
-            };
-
-            // List of folder notes that can be pinned
-            const eligible: TFile[] = [];
-            // Resolves frontmatter exclusions, returns empty array when hidden items are shown
-            const { showHiddenItems } = plugin.getUXPreferences();
-            const effectiveExcludedFiles = getEffectiveFrontmatterExclusions(plugin.settings, showHiddenItems);
-            // Gets the list of folders hidden by the active vault profile
-            const hiddenFolders = getActiveHiddenFolders(plugin.settings);
-
-            // Find all eligible folder notes in vault
-            plugin.app.vault.getAllLoadedFiles().forEach(file => {
-                // Skip non-file entries
-                if (!(file instanceof TFile)) {
-                    return;
-                }
-
-                // Skip files without parent folders
-                const parent = file.parent;
-                if (!parent || !(parent instanceof TFolder)) {
-                    return;
-                }
-
-                // Skip files that are not folder notes
-                if (!isFolderNote(file, parent, folderNoteSettings)) {
-                    return;
-                }
-
-                // Skip folder notes in excluded folders when hidden items are disabled
-                if (!plugin.getUXPreferences().showHiddenItems && isFolderInExcludedFolder(parent, hiddenFolders)) {
-                    return;
-                }
-
-                // Skip files that are excluded by frontmatter when hidden items are disabled
-                if (effectiveExcludedFiles.length > 0 && shouldExcludeFile(file, effectiveExcludedFiles, plugin.app)) {
-                    return;
-                }
-
-                // Skip folder notes that are already pinned
-                if (metadataService.isFilePinned(file.path, 'folder')) {
-                    return;
-                }
-
-                eligible.push(file);
-            });
-
-            // Disable command if no folder notes can be pinned
-            if (eligible.length === 0) {
-                return false;
+            if (checking) {
+                return true;
             }
 
-            // Pin all eligible folder notes
-            if (!checking) {
-                // Pin all folder notes with error handling
-                runAsyncAction(async () => {
-                    for (const note of eligible) {
-                        await metadataService.togglePin(note.path, 'folder');
+            runAsyncAction(async () => {
+                const folderNoteSettings = getFolderNoteDetectionSettings(plugin);
+
+                const { showHiddenItems } = plugin.getUXPreferences();
+                const effectiveExcludedFiles = getEffectiveFrontmatterExclusions(plugin.settings, showHiddenItems);
+                const hiddenFolders = getActiveHiddenFolders(plugin.settings);
+
+                const eligible: TFile[] = [];
+
+                plugin.app.vault.getAllLoadedFiles().forEach(file => {
+                    if (!(file instanceof TFile)) {
+                        return;
                     }
 
-                    // Show notification with count of pinned folder notes
-                    showNotice(strings.shortcuts.folderNotesPinned.replace('{count}', eligible.length.toString()), { variant: 'success' });
+                    const parent = file.parent;
+                    if (!parent || !(parent instanceof TFolder)) {
+                        return;
+                    }
+
+                    if (!isFolderNote(file, parent, folderNoteSettings)) {
+                        return;
+                    }
+
+                    if (!showHiddenItems && isFolderInExcludedFolder(parent, hiddenFolders)) {
+                        return;
+                    }
+
+                    if (effectiveExcludedFiles.length > 0 && shouldExcludeFile(file, effectiveExcludedFiles, plugin.app)) {
+                        return;
+                    }
+
+                    if (metadataService.isFilePinned(file.path, 'folder')) {
+                        return;
+                    }
+
+                    eligible.push(file);
                 });
-            }
+
+                if (eligible.length === 0) {
+                    return;
+                }
+
+                const pinnedCount = await metadataService.pinNotes(
+                    eligible.map(note => note.path),
+                    'folder'
+                );
+
+                if (pinnedCount === 0) {
+                    return;
+                }
+
+                showNotice(strings.shortcuts.folderNotesPinned.replace('{count}', pinnedCount.toString()), { variant: 'success' });
+            });
 
             return true;
         }

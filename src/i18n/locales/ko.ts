@@ -82,7 +82,11 @@ export const STRINGS_KO = {
         emptySearchQuery: '저장하기 전에 검색 쿼리를 입력하세요',
         emptySearchName: '검색을 저장하기 전에 이름을 입력하세요',
         add: '바로가기에 추가',
+        addNotesCount: '바로가기에 노트 {count}개 추가',
+        addFilesCount: '바로가기에 파일 {count}개 추가',
         remove: '바로가기에 제거',
+        removeAll: '모든 바로가기 제거',
+        removeAllConfirm: '모든 바로가기를 제거하시겠습니까?',
         folderNotesPinned: '폴더 노트 {count}개를 고정했습니다'
     },
 
@@ -182,6 +186,7 @@ export const STRINGS_KO = {
             copyPath: '파일 시스템 경로 복사',
             copyRelativePath: 'Vault 경로 복사',
             createFolderNote: '폴더 노트 만들기',
+            detachFolderNote: '폴더 노트 해제',
             deleteFolderNote: '폴더 노트 삭제',
             changeIcon: '아이콘 변경',
             changeColor: '아이콘 색상 변경',
@@ -399,6 +404,7 @@ export const STRINGS_KO = {
             folderAlreadyExists: '폴더 "{name}"이(가) 이미 존재합니다',
             folderNotesDisabled: '파일을 변환하려면 설정에서 폴더 노트를 활성화하세요',
             folderNoteAlreadyLinked: '이 파일은 이미 폴더 노트로 작동하고 있습니다',
+            folderNoteNotFound: '선택한 폴더에 폴더 노트가 없습니다',
             folderNoteUnsupportedExtension: '지원되지 않는 파일 확장자: {extension}',
             folderNoteMoveFailed: '변환 중 파일 이동 실패: {error}',
             folderNoteRenameConflict: '"{name}"이라는 이름의 파일이 이미 폴더에 존재합니다',
@@ -514,6 +520,8 @@ export const STRINGS_KO = {
         selectNextFile: '다음 파일 선택', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: '이전 파일 선택', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: '폴더 노트로 변환', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: '폴더 노트로 설정', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: '폴더 노트 해제', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: '폴더 노트를 모두 고정', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '폴더로 이동', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '태그로 이동', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -590,7 +598,13 @@ export const STRINGS_KO = {
             },
             notes: {
                 frontmatter: '프런트매터',
-                display: '모양',
+                icon: '아이콘',
+                title: '제목',
+                previewText: '미리보기 텍스트',
+                featureImage: '대표 이미지',
+                tags: '태그',
+                date: '날짜',
+                parentFolder: '상위 폴더',
                 textTransformAdd: '새로운 변형 추가',
                 textTransformPatternPlaceholder: '정규 표현식',
                 textTransformReplacementPlaceholder: '대사',
@@ -693,7 +707,27 @@ export const STRINGS_KO = {
             },
             showFileIcons: {
                 name: '파일 아이콘 표시',
-                desc: '파일 아이콘을 왼쪽 정렬 간격과 함께 표시. 비활성화하면 아이콘과 들여쓰기가 모두 제거됩니다.'
+                desc: '파일 아이콘을 왼쪽 정렬 간격과 함께 표시. 비활성화하면 아이콘과 들여쓰기가 모두 제거됩니다. 우선순위: 사용자 지정 > 파일 이름 > 파일 유형 > 기본값.'
+            },
+            showFilenameMatchIcons: {
+                name: '파일 이름으로 아이콘 설정',
+                desc: '파일 이름의 텍스트를 기반으로 아이콘을 지정합니다.'
+            },
+            fileNameIconMap: {
+                name: '파일 이름 아이콘 맵',
+                desc: '텍스트를 포함하는 파일에 지정된 아이콘이 적용됩니다. 줄당 하나의 매핑: 텍스트=아이콘',
+                placeholder: '# 텍스트=아이콘\n회의=calendar\n청구서=receipt',
+                resetTooltip: '기본값 복원'
+            },
+            showCategoryIcons: {
+                name: '파일 유형으로 아이콘 설정',
+                desc: '파일 확장자를 기반으로 아이콘을 지정합니다.'
+            },
+            fileTypeIconMap: {
+                name: '파일 유형 아이콘 맵',
+                desc: '확장자가 있는 파일에 지정된 아이콘이 적용됩니다. 줄당 하나의 매핑: 확장자=아이콘',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: '기본값 복원'
             },
             optimizeNoteHeight: {
                 name: '노트 높이 최적화',
@@ -782,6 +816,18 @@ export const STRINGS_KO = {
             autoExpandFoldersTags: {
                 name: '선택 시 확장',
                 desc: '선택 시 폴더와 태그를 확장합니다. 단일 창 모드에서는 첫 번째 선택이 확장하고 두 번째 선택이 파일을 표시합니다.'
+            },
+            springLoadedFolders: {
+                name: '드래그 중 확장 (데스크톱 전용)',
+                desc: '드래그 작업 중에 마우스를 올리면 폴더와 태그를 확장합니다.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: '첫 확장 지연',
+                desc: '드래그 작업 중 첫 번째 폴더 또는 태그가 확장되기 전 지연(초).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: '후속 확장 지연',
+                desc: '같은 드래그 작업 중 추가 폴더 또는 태그가 확장되기 전 지연(초).'
             },
             navigationBanner: {
                 name: '탐색 배너 (저장소 프로필)',
@@ -884,7 +930,7 @@ export const STRINGS_KO = {
             },
             vaultProfiles: {
                 name: '보관소 프로필',
-                desc: '프로필은 파일 유형 가시성, 숨겨진 폴더, 숨겨진 태그, 숨겨진 노트, 바로가기, 탐색 배너를 저장합니다. 탐색 창 헤더에서 프로필을 전환합니다.',
+                desc: '프로필은 파일 유형 가시성, 숨겨진 파일, 숨겨진 폴더, 숨겨진 태그, 숨겨진 노트, 바로가기, 탐색 배너를 저장합니다. 탐색 창 헤더에서 프로필을 전환합니다.',
                 defaultName: '기본',
                 addButton: '프로필 추가',
                 editProfilesButton: '프로필 편집',
@@ -897,7 +943,7 @@ export const STRINGS_KO = {
                 editModalTitle: '프로필 편집',
                 addModalPlaceholder: '프로필 이름',
                 deleteModalTitle: '{name} 삭제',
-                deleteModalMessage: '{name}을(를) 제거하시겠습니까? 이 프로필에 저장된 숨겨진 폴더, 태그 및 노트 필터가 삭제됩니다.',
+                deleteModalMessage: '{name}을(를) 제거하시겠습니까? 이 프로필에 저장된 숨겨진 파일, 폴더, 태그 및 노트 필터가 삭제됩니다.',
                 moveUp: '위로 이동',
                 moveDown: '아래로 이동',
                 errors: {
@@ -1218,9 +1264,9 @@ export const STRINGS_KO = {
                 desc: '노트 이름, 타임스탬프, 아이콘, 색상에 frontmatter 사용'
             },
             frontmatterNameField: {
-                name: '이름 필드',
-                desc: '노트 표시 이름으로 사용할 frontmatter 필드입니다. 파일 이름을 사용하려면 비워 두세요.',
-                placeholder: 'title'
+                name: '이름 필드들',
+                desc: '쉼표로 구분된 frontmatter 필드 목록. 첫 번째 비어 있지 않은 값을 사용. 파일 이름으로 대체.',
+                placeholder: '제목, 이름'
             },
             frontmatterIconField: {
                 name: '아이콘 필드',

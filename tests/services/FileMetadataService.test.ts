@@ -103,4 +103,15 @@ describe('FileMetadataService frontmatter integration', () => {
         const metadata = extractMetadataFromCache({ frontmatter: { icon: frontmatter.icon } } as CachedMetadata, settingsProvider.settings);
         expect(metadata.icon).toBe('phosphor:apple-logo');
     });
+
+    it('pins notes in a single settings update', async () => {
+        settingsProvider.settings.pinnedNotes = {};
+
+        const pinnedCount = await service.pinNotes(['Vault/One.md', 'Vault/Two.md'], 'folder');
+
+        expect(pinnedCount).toBe(2);
+        expect(settingsProvider.saveSettingsAndUpdate).toHaveBeenCalledTimes(1);
+        expect(settingsProvider.settings.pinnedNotes?.['Vault/One.md']).toEqual({ folder: true, tag: false });
+        expect(settingsProvider.settings.pinnedNotes?.['Vault/Two.md']).toEqual({ folder: true, tag: false });
+    });
 });

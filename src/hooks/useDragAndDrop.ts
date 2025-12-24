@@ -74,6 +74,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const dragOverElement = useRef<HTMLElement | null>(null);
     const autoExpandTimeoutRef = useRef<number | null>(null);
     const autoExpandTargetRef = useRef<AutoExpandTarget | null>(null);
+    const springLoadedExpandCountRef = useRef(0);
     const expandedFoldersRef = useRef(expansionState.expandedFolders);
     const expandedTagsRef = useRef(expansionState.expandedTags);
     const dragTypeRef = useRef<DragItemType | null>(null);
@@ -82,6 +83,20 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     // Stores canonical path of dragged tag for comparison and validation
     const dragTagCanonicalRef = useRef<string | null>(null);
     const dragGhostManager = useMemo(() => createDragGhostManager(app), [app]);
+    const springLoadedInitialDelayMs = useMemo(() => {
+        const delaySeconds = settings.springLoadedFoldersInitialDelay;
+        if (!Number.isFinite(delaySeconds)) {
+            return DRAG_AUTO_EXPAND_DELAY;
+        }
+        return Math.round(Math.min(2, Math.max(0.1, delaySeconds)) * 1000);
+    }, [settings.springLoadedFoldersInitialDelay]);
+    const springLoadedSubsequentDelayMs = useMemo(() => {
+        const delaySeconds = settings.springLoadedFoldersSubsequentDelay;
+        if (!Number.isFinite(delaySeconds)) {
+            return DRAG_AUTO_EXPAND_DELAY;
+        }
+        return Math.round(Math.min(2, Math.max(0.1, delaySeconds)) * 1000);
+    }, [settings.springLoadedFoldersSubsequentDelay]);
 
     /**
      * Sets or clears the drag payload in Obsidian's internal drag manager.
@@ -179,6 +194,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             if (!isHTMLElement(e.target)) {
                 return;
             }
+
+            springLoadedExpandCountRef.current = 0;
 
             const draggable = e.target.closest('[data-draggable="true"]');
             if (!draggable || !(draggable instanceof HTMLElement)) {
@@ -315,6 +332,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         autoExpandTargetRef.current = null;
     }, []);
 
+    useEffect(() => {
+        if (!settings.springLoadedFolders) {
+            clearAutoExpandTimer();
+        }
+    }, [settings.springLoadedFolders, clearAutoExpandTimer]);
+
     /**
      * Schedules auto-expansion of a folder or tag when hovering during drag
      * Validates the node has children before expanding after delay
@@ -339,6 +362,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 return;
             }
 
+            const delay = springLoadedExpandCountRef.current === 0 ? springLoadedInitialDelayMs : springLoadedSubsequentDelayMs;
             autoExpandTargetRef.current = { type: config.type, path: config.path };
             autoExpandTimeoutRef.current = window.setTimeout(() => {
                 const latest = config.resolveNode();
@@ -349,12 +373,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
                 if (latest.hasChildren && !config.isAlreadyExpanded()) {
                     config.expand();
+                    springLoadedExpandCountRef.current += 1;
                 }
 
                 clearAutoExpandTimer();
-            }, DRAG_AUTO_EXPAND_DELAY);
+            }, delay);
         },
-        [clearAutoExpandTimer]
+        [clearAutoExpandTimer, springLoadedInitialDelayMs, springLoadedSubsequentDelayMs]
     );
 
     /**
@@ -409,6 +434,23 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             });
         },
         [tagTreeService, expansionDispatch, scheduleAutoExpand]
+    );
+
+    const maybeScheduleAutoExpand = useCallback(
+        (targetType: 'folder' | 'tag', targetPath: string) => {
+            if (!settings.springLoadedFolders) {
+                clearAutoExpandTimer();
+                return;
+            }
+
+            if (targetType === 'folder') {
+                scheduleFolderAutoExpand(targetPath);
+                return;
+            }
+
+            scheduleTagAutoExpand(targetPath);
+        },
+        [settings.springLoadedFolders, clearAutoExpandTimer, scheduleFolderAutoExpand, scheduleTagAutoExpand]
     );
 
     /**
@@ -488,7 +530,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
                     e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
                     if (targetPath) {
-                        scheduleFolderAutoExpand(targetPath);
+                        maybeScheduleAutoExpand('folder', targetPath);
                     }
                 } else if (dropType === 'tag') {
                     if (dragTypeRef.current === ItemType.FOLDER) {
@@ -504,7 +546,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     if (targetPath !== UNTAGGED_TAG_ID) {
                         const canonicalTagPath = dropZone.getAttribute('data-tag');
                         if (canonicalTagPath) {
-                            scheduleTagAutoExpand(canonicalTagPath);
+                            maybeScheduleAutoExpand('tag', canonicalTagPath);
                         } else {
                             clearAutoExpandTimer();
                         }
@@ -536,7 +578,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             dropZone.classList.add('nn-drag-over');
             dragOverElement.current = dropZone;
         },
-        [clearAutoExpandTimer, scheduleFolderAutoExpand, scheduleTagAutoExpand]
+        [clearAutoExpandTimer, maybeScheduleAutoExpand]
     );
 
     /**
@@ -877,6 +919,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragTypeRef.current = null;
                 dragTagDisplayRef.current = null;
                 dragTagCanonicalRef.current = null;
+                springLoadedExpandCountRef.current = 0;
             }
         },
         [
@@ -923,6 +966,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const handleDragEnd = useCallback(
         (e: DragEvent) => {
+            springLoadedExpandCountRef.current = 0;
+
             const target = e.target;
             if (!isHTMLElement(target)) return;
             const draggable = target.closest('[data-draggable="true"]');
@@ -963,7 +1008,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         if (!container || isMobile) return;
 
         // Global handler for escape key to clean up ghost on cancel
-        const handleEscape = (e: KeyboardEvent) => {
+        const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'Escape' && dragGhostManager.hasGhost()) {
                 dragGhostManager.hideGhost();
             }
@@ -978,7 +1023,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         container.addEventListener('dragleave', handleDragLeave);
         container.addEventListener('drop', handleDropListener);
         container.addEventListener('dragend', handleDragEnd);
-        document.addEventListener('keydown', handleEscape);
+        document.addEventListener('keydown', handleKeyDown);
 
         return () => {
             container.removeEventListener('dragstart', handleDragStart);
@@ -986,7 +1031,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             container.removeEventListener('dragleave', handleDragLeave);
             container.removeEventListener('drop', handleDropListener);
             container.removeEventListener('dragend', handleDragEnd);
-            document.removeEventListener('keydown', handleEscape);
+            document.removeEventListener('keydown', handleKeyDown);
 
             // Clean up any lingering drag state on unmount
             dragGhostManager.hideGhost();

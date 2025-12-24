@@ -83,7 +83,11 @@ export const STRINGS_IT = {
         emptySearchQuery: 'Inserisci una query di ricerca prima di salvare',
         emptySearchName: 'Inserisci un nome prima di salvare la ricerca',
         add: 'Aggiungi alle scorciatoie',
+        addNotesCount: 'Aggiungi {count} note alle scorciatoie',
+        addFilesCount: 'Aggiungi {count} file alle scorciatoie',
         remove: 'Rimuovi dalle scorciatoie',
+        removeAll: 'Rimuovi tutte le scorciatoie',
+        removeAllConfirm: 'Rimuovere tutte le scorciatoie?',
         folderNotesPinned: 'Fissate {count} note cartella'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_IT = {
             copyPath: 'Copia percorso file system',
             copyRelativePath: 'Copia percorso vault',
             createFolderNote: 'Crea nota cartella',
+            detachFolderNote: 'Scollega nota cartella',
             deleteFolderNote: 'Elimina nota cartella',
             changeIcon: 'Cambia icona',
             changeColor: 'Cambia colore',
@@ -399,6 +404,7 @@ export const STRINGS_IT = {
             folderAlreadyExists: 'La cartella "{name}" esiste già',
             folderNotesDisabled: 'Abilita le note cartella nelle impostazioni per convertire i file',
             folderNoteAlreadyLinked: 'Questo file funge già da nota cartella',
+            folderNoteNotFound: 'Nessuna nota cartella nella cartella selezionata',
             folderNoteUnsupportedExtension: 'Estensione file non supportata: {extension}',
             folderNoteMoveFailed: 'Impossibile spostare file durante la conversione: {error}',
             folderNoteRenameConflict: 'Un file chiamato "{name}" esiste già nella cartella',
@@ -514,6 +520,8 @@ export const STRINGS_IT = {
         selectNextFile: 'Seleziona file successivo', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Seleziona file precedente', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Converti in nota cartella', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Imposta come nota cartella', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Scollega nota cartella', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Fissa tutte le note cartella', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Vai alla cartella', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Vai al tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -590,7 +598,13 @@ export const STRINGS_IT = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Aspetto',
+                icon: 'Icona',
+                title: 'Titolo',
+                previewText: 'Testo anteprima',
+                featureImage: 'Immagine in evidenza',
+                tags: 'Tag',
+                date: 'Data',
+                parentFolder: 'Cartella superiore',
                 textTransformAdd: 'Aggiungi nuova trasformazione',
                 textTransformPatternPlaceholder: 'Espressione regolare',
                 textTransformReplacementPlaceholder: 'Sostituzione',
@@ -693,7 +707,27 @@ export const STRINGS_IT = {
             },
             showFileIcons: {
                 name: 'Mostra icone file',
-                desc: 'Visualizza icone file con spaziatura allineata a sinistra. Disabilitando rimuove sia icone che indentazione.'
+                desc: 'Visualizza icone file con spaziatura allineata a sinistra. Disabilitando rimuove sia icone che indentazione. Priorità: personalizzato > nome file > tipo file > predefinito.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Icone per nome file',
+                desc: 'Assegna icone ai file in base al testo nei loro nomi.'
+            },
+            fileNameIconMap: {
+                name: 'Mappa icone per nome',
+                desc: "I file contenenti il testo ottengono l'icona specificata. Una mappatura per riga: testo=icona",
+                placeholder: '# testo=icona\nriunione=calendar\nfattura=receipt',
+                resetTooltip: 'Ripristina valori predefiniti'
+            },
+            showCategoryIcons: {
+                name: 'Icone per tipo file',
+                desc: 'Assegna icone ai file in base alla loro estensione.'
+            },
+            fileTypeIconMap: {
+                name: 'Mappa icone per tipo',
+                desc: "I file con l'estensione ottengono l'icona specificata. Una mappatura per riga: estensione=icona",
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Ripristina valori predefiniti'
             },
             optimizeNoteHeight: {
                 name: 'Ottimizza altezza note',
@@ -782,6 +816,18 @@ export const STRINGS_IT = {
             autoExpandFoldersTags: {
                 name: 'Espandi alla selezione',
                 desc: 'Espandi cartelle e tag quando selezionati. In modalità pannello singolo, la prima selezione espande, la seconda mostra i file.'
+            },
+            springLoadedFolders: {
+                name: 'Espandi durante il trascinamento (solo desktop)',
+                desc: 'Espandi cartelle e tag al passaggio del mouse durante il trascinamento.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Ritardo prima espansione',
+                desc: 'Ritardo prima che la prima cartella o tag si espanda durante un trascinamento (secondi).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Ritardo espansioni successive',
+                desc: 'Ritardo prima di espandere cartelle o tag aggiuntivi durante lo stesso trascinamento (secondi).'
             },
             navigationBanner: {
                 name: 'Banner navigazione (profilo vault)',
@@ -884,7 +930,7 @@ export const STRINGS_IT = {
             },
             vaultProfiles: {
                 name: 'Profilo vault',
-                desc: "I profili memorizzano visibilità tipi file, cartelle nascoste, tag nascosti, note nascoste, scorciatoie e banner navigazione. Cambia profilo dall'intestazione del pannello navigazione.",
+                desc: "I profili memorizzano visibilità tipi file, file nascosti, cartelle nascoste, tag nascosti, note nascoste, scorciatoie e banner navigazione. Cambia profilo dall'intestazione del pannello navigazione.",
                 defaultName: 'Predefinito',
                 addButton: 'Aggiungi profilo',
                 editProfilesButton: 'Modifica profili',
@@ -897,7 +943,8 @@ export const STRINGS_IT = {
                 editModalTitle: 'Modifica profilo',
                 addModalPlaceholder: 'Nome profilo',
                 deleteModalTitle: 'Elimina {name}',
-                deleteModalMessage: 'Rimuovere {name}? I filtri cartelle, tag e note nascoste salvati in questo profilo saranno eliminati.',
+                deleteModalMessage:
+                    'Rimuovere {name}? I filtri file, cartelle, tag e note nascoste salvati in questo profilo saranno eliminati.',
                 moveUp: 'Sposta su',
                 moveDown: 'Sposta giù',
                 errors: {
@@ -1242,9 +1289,9 @@ export const STRINGS_IT = {
                 noticeError: 'Migrazione fallita. Controlla console per dettagli.'
             },
             frontmatterNameField: {
-                name: 'Campo nome',
-                desc: 'Campo frontmatter da usare come nome visualizzato nota. Lascia vuoto per usare il nome file.',
-                placeholder: 'title'
+                name: 'Campi nome',
+                desc: 'Elenco di campi frontmatter separati da virgola. Viene usato il primo valore non vuoto. Usa il nome file come alternativa.',
+                placeholder: 'titolo, nome'
             },
             frontmatterCreatedField: {
                 name: 'Campo timestamp creazione',

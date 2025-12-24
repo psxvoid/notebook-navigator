@@ -126,7 +126,7 @@ interface ListPaneProps {
      * When provided, renders a resize handle overlay on the list pane boundary.
      */
     resizeHandleProps?: {
-        onMouseDown: (e: React.MouseEvent) => void;
+        onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => void;
     };
     /**
      * Callback invoked whenever tag-related search tokens change.

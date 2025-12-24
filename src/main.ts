@@ -50,7 +50,12 @@ import { initializeDatabase, shutdownDatabase } from './storage/fileOperations';
 import { ExtendedApp } from './types/obsidian-extended';
 import { getLeafSplitLocation } from './utils/workspaceSplit';
 import { sanitizeKeyboardShortcuts } from './utils/keyboardShortcuts';
-import { normalizeCanonicalIconId } from './utils/iconizeFormat';
+import {
+    normalizeCanonicalIconId,
+    normalizeFileNameIconMapKey,
+    normalizeFileTypeIconMapKey,
+    normalizeIconMapRecord
+} from './utils/iconizeFormat';
 import { isBooleanRecordValue, isPlainObjectRecordValue, isStringRecordValue, sanitizeRecord } from './utils/recordUtils';
 import { isRecord } from './utils/typeGuards';
 import { runAsyncAction } from './utils/async';
@@ -406,6 +411,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         this.applyLegacyVisibilityMigration(legacyVisibility);
         this.applyLegacyShortcutsMigration(legacyShortcuts);
         this.normalizeIconSettings(this.settings);
+        this.normalizeFileIconMapSettings(this.settings);
         this.settings.vaultProfile = this.resolveActiveVaultProfileId();
         localStorage.set(STORAGE_KEYS.vaultProfileKey, this.settings.vaultProfile);
         this.refreshMatcherCachesIfNeeded();
@@ -1537,6 +1543,45 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         settings.folderIcons = normalizeRecord(settings.folderIcons);
         settings.tagIcons = normalizeRecord(settings.tagIcons);
         settings.fileIcons = normalizeRecord(settings.fileIcons);
+    }
+
+    private normalizeFileIconMapSettings(settings: NotebookNavigatorSettings): void {
+        const normalizeIconMap = (input: unknown, normalizeKey: (key: string) => string, fallback: Record<string, string>) => {
+            if (!isPlainObjectRecordValue(input)) {
+                return normalizeIconMapRecord(fallback, normalizeKey);
+            }
+
+            const source = sanitizeRecord<string>(undefined);
+            Object.entries(input).forEach(([key, value]) => {
+                if (typeof value !== 'string') {
+                    return;
+                }
+
+                source[key] = value;
+            });
+
+            return normalizeIconMapRecord(source, normalizeKey);
+        };
+
+        if (typeof settings.showCategoryIcons !== 'boolean') {
+            settings.showCategoryIcons = DEFAULT_SETTINGS.showCategoryIcons;
+        }
+
+        if (typeof settings.showFilenameMatchIcons !== 'boolean') {
+            settings.showFilenameMatchIcons = DEFAULT_SETTINGS.showFilenameMatchIcons;
+        }
+
+        settings.fileTypeIconMap = normalizeIconMap(
+            settings.fileTypeIconMap,
+            normalizeFileTypeIconMapKey,
+            DEFAULT_SETTINGS.fileTypeIconMap
+        );
+
+        settings.fileNameIconMap = normalizeIconMap(
+            settings.fileNameIconMap,
+            normalizeFileNameIconMapKey,
+            DEFAULT_SETTINGS.fileNameIconMap
+        );
     }
 
     // Extracts legacy exclusion settings from old format and prepares them for migration to vault profiles

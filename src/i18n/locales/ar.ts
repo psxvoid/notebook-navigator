@@ -83,7 +83,11 @@ export const STRINGS_AR = {
         emptySearchQuery: 'أدخل استعلام بحث قبل حفظه',
         emptySearchName: 'أدخل اسمًا قبل حفظ البحث',
         add: 'إضافة إلى الاختصارات',
+        addNotesCount: 'إضافة {count} ملاحظات إلى الاختصارات',
+        addFilesCount: 'إضافة {count} ملفات إلى الاختصارات',
         remove: 'إزالة من الاختصارات',
+        removeAll: 'إزالة جميع الاختصارات',
+        removeAllConfirm: 'إزالة جميع الاختصارات؟',
         folderNotesPinned: 'تم تثبيت {count} ملاحظة مجلد'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_AR = {
             copyPath: 'نسخ مسار نظام الملفات',
             copyRelativePath: 'نسخ مسار الخزنة',
             createFolderNote: 'إنشاء ملاحظة مجلد',
+            detachFolderNote: 'فصل ملاحظة المجلد',
             deleteFolderNote: 'حذف ملاحظة المجلد',
             changeIcon: 'تغيير الأيقونة',
             changeColor: 'تغيير اللون',
@@ -399,6 +404,7 @@ export const STRINGS_AR = {
             folderAlreadyExists: 'المجلد "{name}" موجود بالفعل',
             folderNotesDisabled: 'قم بتمكين ملاحظات المجلد في الإعدادات لتحويل الملفات',
             folderNoteAlreadyLinked: 'هذا الملف يعمل بالفعل كملاحظة مجلد',
+            folderNoteNotFound: 'لا توجد ملاحظة مجلد في المجلد المحدد',
             folderNoteUnsupportedExtension: 'امتداد ملف غير مدعوم: {extension}',
             folderNoteMoveFailed: 'فشل نقل الملف أثناء التحويل: {error}',
             folderNoteRenameConflict: 'ملف باسم "{name}" موجود بالفعل في المجلد',
@@ -514,6 +520,8 @@ export const STRINGS_AR = {
         selectNextFile: 'تحديد الملف التالي', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'تحديد الملف السابق', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'تحويل إلى ملاحظة مجلد', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'تعيين كملاحظة مجلد', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'فصل ملاحظة المجلد', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'تثبيت جميع ملاحظات المجلدات', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'الانتقال إلى مجلد', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'الانتقال إلى وسم', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -590,7 +598,13 @@ export const STRINGS_AR = {
             },
             notes: {
                 frontmatter: 'البيانات الأمامية',
-                display: 'المظهر',
+                icon: 'الأيقونة',
+                title: 'العنوان',
+                previewText: 'نص المعاينة',
+                featureImage: 'الصورة المميزة',
+                tags: 'الوسوم',
+                date: 'التاريخ',
+                parentFolder: 'المجلد الأصلي',
                 textTransformAdd: 'إضافة تحويل جديد',
                 textTransformPatternPlaceholder: 'تعبير منتظم',
                 textTransformReplacementPlaceholder: 'الاستبدال',
@@ -693,7 +707,27 @@ export const STRINGS_AR = {
             },
             showFileIcons: {
                 name: 'إظهار أيقونات الملفات',
-                desc: 'عرض أيقونات الملفات مع مسافة محاذاة لليسار. التعطيل يزيل الأيقونات والمسافة البادئة.'
+                desc: 'عرض أيقونات الملفات مع مسافة محاذاة لليسار. التعطيل يزيل الأيقونات والمسافة البادئة. الأولوية: مخصص > اسم الملف > نوع الملف > افتراضي.'
+            },
+            showFilenameMatchIcons: {
+                name: 'أيقونات حسب اسم الملف',
+                desc: 'تعيين أيقونات للملفات بناءً على النص في أسمائها.'
+            },
+            fileNameIconMap: {
+                name: 'خريطة أيقونات اسم الملف',
+                desc: 'الملفات التي تحتوي على النص تحصل على الأيقونة المحددة. تعيين واحد لكل سطر: نص=أيقونة',
+                placeholder: '# نص=أيقونة\nاجتماع=calendar\nفاتورة=receipt',
+                resetTooltip: 'استعادة الإعدادات الافتراضية'
+            },
+            showCategoryIcons: {
+                name: 'أيقونات حسب نوع الملف',
+                desc: 'تعيين أيقونات للملفات بناءً على امتدادها.'
+            },
+            fileTypeIconMap: {
+                name: 'خريطة أيقونات نوع الملف',
+                desc: 'الملفات ذات الامتداد تحصل على الأيقونة المحددة. تعيين واحد لكل سطر: امتداد=أيقونة',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'استعادة الإعدادات الافتراضية'
             },
             optimizeNoteHeight: {
                 name: 'تحسين ارتفاع الملاحظة',
@@ -782,6 +816,18 @@ export const STRINGS_AR = {
             autoExpandFoldersTags: {
                 name: 'التوسيع عند التحديد',
                 desc: 'توسيع المجلدات والوسوم عند تحديدها. في وضع اللوحة الواحدة، التحديد الأول يوسع، والتحديد الثاني يعرض الملفات.'
+            },
+            springLoadedFolders: {
+                name: 'التوسيع أثناء السحب (سطح المكتب فقط)',
+                desc: 'توسيع المجلدات والوسوم عند التمرير فوقها أثناء السحب.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'تأخير التوسيع الأول',
+                desc: 'التأخير قبل توسيع أول مجلد أو وسم أثناء السحب (بالثواني).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'تأخير التوسيع اللاحق',
+                desc: 'التأخير قبل توسيع مجلدات أو وسوم إضافية أثناء نفس عملية السحب (بالثواني).'
             },
             navigationBanner: {
                 name: 'شعار التنقل (ملف الخزنة)',
@@ -884,7 +930,7 @@ export const STRINGS_AR = {
             },
             vaultProfiles: {
                 name: 'ملف الخزنة',
-                desc: 'تخزن الملفات رؤية أنواع الملفات والمجلدات المخفية والوسوم المخفية والملاحظات المخفية والاختصارات وشعار التنقل. بدل الملفات من رأس لوحة التنقل.',
+                desc: 'تخزن الملفات رؤية أنواع الملفات والملفات المخفية والمجلدات المخفية والوسوم المخفية والملاحظات المخفية والاختصارات وشعار التنقل. بدل الملفات من رأس لوحة التنقل.',
                 defaultName: 'افتراضي',
                 addButton: 'إضافة ملف',
                 editProfilesButton: 'تحرير الملفات',
@@ -897,7 +943,7 @@ export const STRINGS_AR = {
                 editModalTitle: 'تحرير الملف',
                 addModalPlaceholder: 'اسم الملف',
                 deleteModalTitle: 'حذف {name}',
-                deleteModalMessage: 'إزالة {name}؟ سيتم حذف مرشحات المجلدات والوسوم والملاحظات المخفية المحفوظة في هذا الملف.',
+                deleteModalMessage: 'إزالة {name}؟ سيتم حذف مرشحات الملفات والمجلدات والوسوم والملاحظات المخفية المحفوظة في هذا الملف.',
                 moveUp: 'تحريك لأعلى',
                 moveDown: 'تحريك لأسفل',
                 errors: {
@@ -1242,9 +1288,9 @@ export const STRINGS_AR = {
                 noticeError: 'فشل الترحيل. تحقق من وحدة التحكم للتفاصيل.'
             },
             frontmatterNameField: {
-                name: 'حقل الاسم',
-                desc: 'حقل البيانات الأمامية لاستخدامه كاسم عرض الملاحظة. اتركه فارغًا لاستخدام اسم الملف.',
-                placeholder: 'title'
+                name: 'حقول الاسم',
+                desc: 'قائمة حقول البيانات الأمامية مفصولة بفواصل. يُستخدم أول قيمة غير فارغة. يعود لاسم الملف.',
+                placeholder: 'عنوان, اسم'
             },
             frontmatterCreatedField: {
                 name: 'حقل طابع وقت الإنشاء',

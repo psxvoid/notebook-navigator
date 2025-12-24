@@ -82,7 +82,11 @@ export const STRINGS_JA = {
         emptySearchQuery: '保存前に検索クエリを入力してください',
         emptySearchName: '検索を保存する前に名前を入力してください',
         add: 'ショートカットに追加',
+        addNotesCount: 'ショートカットに{count}件のノートを追加',
+        addFilesCount: 'ショートカットに{count}件のファイルを追加',
         remove: 'ショートカットから削除',
+        removeAll: 'すべてのショートカットを削除',
+        removeAllConfirm: 'すべてのショートカットを削除しますか？',
         folderNotesPinned: 'フォルダノート {count} 件をピン留めしました'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_JA = {
             copyPath: 'ファイルシステムパスをコピー',
             copyRelativePath: 'Vaultパスをコピー',
             createFolderNote: 'フォルダノートを作成',
+            detachFolderNote: 'フォルダノートを解除',
             deleteFolderNote: 'フォルダーノートを削除',
             changeIcon: 'アイコンを変更',
             changeColor: '色を変更',
@@ -400,6 +405,7 @@ export const STRINGS_JA = {
             folderAlreadyExists: 'フォルダ「{name}」は既に存在します',
             folderNotesDisabled: 'ファイルを変換するには設定でフォルダノートを有効にしてください',
             folderNoteAlreadyLinked: 'このファイルは既にフォルダノートとして機能しています',
+            folderNoteNotFound: '選択したフォルダにフォルダノートがありません',
             folderNoteUnsupportedExtension: 'サポートされていないファイル拡張子：{extension}',
             folderNoteMoveFailed: '変換中のファイル移動に失敗しました：{error}',
             folderNoteRenameConflict: '「{name}」という名前のファイルが既にフォルダ内に存在します',
@@ -515,6 +521,8 @@ export const STRINGS_JA = {
         selectNextFile: '次のファイルを選択', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: '前のファイルを選択', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'フォルダノートに変換', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'フォルダノートとして設定', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'フォルダノートを解除', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'フォルダノートをすべてピン留め', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -591,7 +599,13 @@ export const STRINGS_JA = {
             },
             notes: {
                 frontmatter: 'フロントマター',
-                display: '外観',
+                icon: 'アイコン',
+                title: 'タイトル',
+                previewText: 'プレビューテキスト',
+                featureImage: 'アイキャッチ画像',
+                tags: 'タグ',
+                date: '日付',
+                parentFolder: '親フォルダ',
                 textTransformAdd: '新しい変換を追加',
                 textTransformPatternPlaceholder: '正規表現',
                 textTransformReplacementPlaceholder: '交換',
@@ -694,7 +708,27 @@ export const STRINGS_JA = {
             },
             showFileIcons: {
                 name: 'ファイルアイコンを表示',
-                desc: 'ファイルアイコンを左寄せ間隔で表示。無効化するとアイコンとインデントの両方が削除されます。'
+                desc: 'ファイルアイコンを左寄せ間隔で表示。無効化するとアイコンとインデントの両方が削除されます。優先順位: カスタム > ファイル名 > ファイルタイプ > デフォルト。'
+            },
+            showFilenameMatchIcons: {
+                name: 'ファイル名でアイコン設定',
+                desc: 'ファイル名のテキストに基づいてアイコンを割り当てます。'
+            },
+            fileNameIconMap: {
+                name: 'ファイル名アイコンマップ',
+                desc: 'テキストを含むファイルに指定したアイコンが適用されます。1行に1つのマッピング: テキスト=アイコン',
+                placeholder: '# テキスト=アイコン\n会議=calendar\n請求書=receipt',
+                resetTooltip: 'デフォルトに戻す'
+            },
+            showCategoryIcons: {
+                name: 'ファイルタイプでアイコン設定',
+                desc: 'ファイルの拡張子に基づいてアイコンを割り当てます。'
+            },
+            fileTypeIconMap: {
+                name: 'ファイルタイプアイコンマップ',
+                desc: '拡張子を持つファイルに指定したアイコンが適用されます。1行に1つのマッピング: 拡張子=アイコン',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'デフォルトに戻す'
             },
             optimizeNoteHeight: {
                 name: 'ノートの高さを最適化',
@@ -784,6 +818,18 @@ export const STRINGS_JA = {
                 name: '選択時に展開',
                 desc: '選択時にフォルダとタグを展開します。シングルペインモードでは、最初の選択で展開、2回目の選択でファイルを表示します。'
             },
+            springLoadedFolders: {
+                name: 'ドラッグ時に展開（デスクトップのみ）',
+                desc: 'ドラッグ操作中にホバーするとフォルダとタグを展開します。'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: '最初の展開遅延',
+                desc: 'ドラッグ操作中に最初のフォルダまたはタグを展開するまでの遅延（秒）。'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: '次の展開遅延',
+                desc: '同じドラッグ操作中に追加のフォルダまたはタグを展開するまでの遅延（秒）。'
+            },
             navigationBanner: {
                 name: 'ナビゲーションバナー（保管庫プロファイル）',
                 desc: 'ナビゲーションペイン上部に画像を表示します。選択された保管庫プロファイルに応じて変更されます。',
@@ -864,7 +910,7 @@ export const STRINGS_JA = {
             },
             vaultProfiles: {
                 name: '保管庫プロファイル',
-                desc: 'プロファイルは、ファイルタイプの表示、非表示フォルダ、非表示タグ、非表示ノート、ショートカット、ナビゲーションバナーを保存します。ナビゲーションペインのヘッダーからプロファイルを切り替えます。',
+                desc: 'プロファイルは、ファイルタイプの表示、非表示ファイル、非表示フォルダ、非表示タグ、非表示ノート、ショートカット、ナビゲーションバナーを保存します。ナビゲーションペインのヘッダーからプロファイルを切り替えます。',
                 defaultName: 'デフォルト',
                 addButton: 'プロファイルを追加',
                 editProfilesButton: 'プロファイルを編集',
@@ -878,7 +924,7 @@ export const STRINGS_JA = {
                 addModalPlaceholder: 'プロファイル名',
                 deleteModalTitle: '{name}を削除',
                 deleteModalMessage:
-                    '{name}を削除しますか？このプロファイルに保存されている非表示フォルダ、タグ、ノートのフィルタが削除されます。',
+                    '{name}を削除しますか？このプロファイルに保存されている非表示ファイル、フォルダ、タグ、ノートのフィルタが削除されます。',
                 moveUp: '上に移動',
                 moveDown: '下に移動',
                 errors: {
@@ -1221,9 +1267,9 @@ export const STRINGS_JA = {
                 desc: 'ノート名、タイムスタンプ、アイコン、色にフロントマターを使用'
             },
             frontmatterNameField: {
-                name: '名前フィールド',
-                desc: 'ノートの表示名として使用するフロントマターフィールド。空のままにするとファイル名を使用。',
-                placeholder: 'タイトル'
+                name: '名前フィールド（複数可）',
+                desc: 'フロントマターフィールドのカンマ区切りリスト。最初の空でない値を使用。ファイル名にフォールバック。',
+                placeholder: 'タイトル, 名前'
             },
             frontmatterIconField: {
                 name: 'アイコンフィールド',

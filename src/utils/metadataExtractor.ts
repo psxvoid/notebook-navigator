@@ -20,6 +20,7 @@ import { App, TFile, CachedMetadata } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { DateUtils } from './dateUtils';
+import { getCachedCommaSeparatedList } from './commaSeparatedListUtils';
 import { deserializeIconFromFrontmatter } from './iconizeFormat';
 import { isRecord } from './typeGuards';
 
@@ -68,21 +69,30 @@ export function extractMetadataFromCache(metadata: CachedMetadata | null, settin
     const frontmatterRecord = frontmatterValue;
 
     // Extract name if field is specified
-    if (settings.frontmatterNameField && settings.frontmatterNameField.trim()) {
-        const nameValue = frontmatterRecord[settings.frontmatterNameField];
+    const nameFields = getCachedCommaSeparatedList(settings.frontmatterNameField);
 
-        if (typeof nameValue === 'string') {
-            const trimmedName = nameValue.trim();
-            if (trimmedName) {
-                result.fn = trimmedName;
-            }
-        } else if (Array.isArray(nameValue)) {
-            const nameArray: unknown[] = nameValue;
-            const firstValue = nameArray[0];
-            if (typeof firstValue === 'string') {
-                const trimmedName = firstValue.trim();
+    if (nameFields.length > 0) {
+        for (const field of nameFields) {
+            const nameValue = frontmatterRecord[field];
+
+            if (typeof nameValue === 'string') {
+                const trimmedName = nameValue.trim();
                 if (trimmedName) {
                     result.fn = trimmedName;
+                    break;
+                }
+            } else if (Array.isArray(nameValue)) {
+                for (const entry of nameValue) {
+                    if (typeof entry === 'string') {
+                        const trimmedName = entry.trim();
+                        if (trimmedName) {
+                            result.fn = trimmedName;
+                            break;
+                        }
+                    }
+                }
+                if (result.fn) {
+                    break;
                 }
             }
         }

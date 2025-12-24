@@ -83,7 +83,11 @@ export const STRINGS_VI = {
         emptySearchQuery: 'Nhập truy vấn tìm kiếm trước khi lưu',
         emptySearchName: 'Nhập tên trước khi lưu tìm kiếm',
         add: 'Thêm vào lối tắt',
+        addNotesCount: 'Thêm {count} ghi chú vào lối tắt',
+        addFilesCount: 'Thêm {count} tệp vào lối tắt',
         remove: 'Gỡ khỏi lối tắt',
+        removeAll: 'Xóa tất cả lối tắt',
+        removeAllConfirm: 'Xóa tất cả lối tắt?',
         folderNotesPinned: 'Đã ghim {count} ghi chú thư mục'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_VI = {
             copyPath: 'Sao chép đường dẫn hệ thống',
             copyRelativePath: 'Sao chép đường dẫn vault',
             createFolderNote: 'Tạo ghi chú thư mục',
+            detachFolderNote: 'Tách ghi chú thư mục',
             deleteFolderNote: 'Xóa ghi chú thư mục',
             changeIcon: 'Đổi biểu tượng',
             changeColor: 'Đổi màu',
@@ -399,6 +404,7 @@ export const STRINGS_VI = {
             folderAlreadyExists: 'Thư mục "{name}" đã tồn tại',
             folderNotesDisabled: 'Bật ghi chú thư mục trong cài đặt để chuyển đổi tệp',
             folderNoteAlreadyLinked: 'Tệp này đã hoạt động như ghi chú thư mục',
+            folderNoteNotFound: 'Không có ghi chú thư mục trong thư mục đã chọn',
             folderNoteUnsupportedExtension: 'Phần mở rộng tệp không được hỗ trợ: {extension}',
             folderNoteMoveFailed: 'Không thể di chuyển tệp khi chuyển đổi: {error}',
             folderNoteRenameConflict: 'Tệp có tên "{name}" đã tồn tại trong thư mục',
@@ -514,6 +520,8 @@ export const STRINGS_VI = {
         selectNextFile: 'Chọn tệp tiếp theo', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Chọn tệp trước', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Chuyển thành ghi chú thư mục', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Đặt làm ghi chú thư mục', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Tách ghi chú thư mục', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Ghim tất cả ghi chú thư mục', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Chuyển đến thư mục', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Chuyển đến thẻ', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -590,7 +598,13 @@ export const STRINGS_VI = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Giao diện',
+                icon: 'Biểu tượng',
+                title: 'Tiêu đề',
+                previewText: 'Văn bản xem trước',
+                featureImage: 'Hình ảnh nổi bật',
+                tags: 'Thẻ',
+                date: 'Ngày',
+                parentFolder: 'Thư mục cha',
                 textTransformAdd: 'Thêm chuyển đổi mới',
                 textTransformPatternPlaceholder: 'Biểu thức chính quy',
                 textTransformReplacementPlaceholder: 'Thay thế',
@@ -693,7 +707,27 @@ export const STRINGS_VI = {
             },
             showFileIcons: {
                 name: 'Hiện biểu tượng tệp',
-                desc: 'Hiển thị biểu tượng tệp với khoảng cách căn trái. Tắt sẽ gỡ cả biểu tượng và thụt lề.'
+                desc: 'Hiển thị biểu tượng tệp với khoảng cách căn trái. Tắt sẽ gỡ cả biểu tượng và thụt lề. Ưu tiên: tùy chỉnh > tên tệp > loại tệp > mặc định.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Biểu tượng theo tên tệp',
+                desc: 'Gán biểu tượng cho tệp dựa trên văn bản trong tên.'
+            },
+            fileNameIconMap: {
+                name: 'Bản đồ biểu tượng tên tệp',
+                desc: 'Tệp chứa văn bản sẽ nhận biểu tượng được chỉ định. Một ánh xạ mỗi dòng: văn bản=biểu tượng',
+                placeholder: '# văn bản=biểu tượng\nhọp=calendar\nhóa đơn=receipt',
+                resetTooltip: 'Khôi phục mặc định'
+            },
+            showCategoryIcons: {
+                name: 'Biểu tượng theo loại tệp',
+                desc: 'Gán biểu tượng cho tệp dựa trên phần mở rộng.'
+            },
+            fileTypeIconMap: {
+                name: 'Bản đồ biểu tượng loại tệp',
+                desc: 'Tệp có phần mở rộng sẽ nhận biểu tượng được chỉ định. Một ánh xạ mỗi dòng: phần mở rộng=biểu tượng',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Khôi phục mặc định'
             },
             optimizeNoteHeight: {
                 name: 'Tối ưu chiều cao ghi chú',
@@ -782,6 +816,18 @@ export const STRINGS_VI = {
             autoExpandFoldersTags: {
                 name: 'Mở rộng khi chọn',
                 desc: 'Mở rộng thư mục và thẻ khi chọn. Ở chế độ một ngăn, chọn lần đầu mở rộng, chọn lần hai hiện tệp.'
+            },
+            springLoadedFolders: {
+                name: 'Mở rộng khi kéo (chỉ máy tính)',
+                desc: 'Mở rộng thư mục và thẻ khi di chuột qua trong lúc kéo.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Độ trễ mở rộng lần đầu',
+                desc: 'Độ trễ trước khi thư mục hoặc thẻ đầu tiên được mở rộng trong lúc kéo (giây).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Độ trễ mở rộng tiếp theo',
+                desc: 'Độ trễ trước khi mở rộng thêm thư mục hoặc thẻ trong cùng một lần kéo (giây).'
             },
             navigationBanner: {
                 name: 'Banner điều hướng (hồ sơ vault)',
@@ -884,7 +930,7 @@ export const STRINGS_VI = {
             },
             vaultProfiles: {
                 name: 'Hồ sơ vault',
-                desc: 'Hồ sơ lưu trữ hiển thị loại tệp, thư mục ẩn, thẻ ẩn, ghi chú ẩn, lối tắt và banner điều hướng. Chuyển hồ sơ từ header ngăn điều hướng.',
+                desc: 'Hồ sơ lưu trữ hiển thị loại tệp, tệp ẩn, thư mục ẩn, thẻ ẩn, ghi chú ẩn, lối tắt và banner điều hướng. Chuyển hồ sơ từ header ngăn điều hướng.',
                 defaultName: 'Mặc định',
                 addButton: 'Thêm hồ sơ',
                 editProfilesButton: 'Sửa hồ sơ',
@@ -897,7 +943,7 @@ export const STRINGS_VI = {
                 editModalTitle: 'Sửa hồ sơ',
                 addModalPlaceholder: 'Tên hồ sơ',
                 deleteModalTitle: 'Xóa {name}',
-                deleteModalMessage: 'Gỡ {name}? Bộ lọc thư mục, thẻ và ghi chú ẩn được lưu trong hồ sơ này sẽ bị xóa.',
+                deleteModalMessage: 'Gỡ {name}? Bộ lọc tệp, thư mục, thẻ và ghi chú ẩn được lưu trong hồ sơ này sẽ bị xóa.',
                 moveUp: 'Di chuyển lên',
                 moveDown: 'Di chuyển xuống',
                 errors: {
@@ -1242,9 +1288,9 @@ export const STRINGS_VI = {
                 noticeError: 'Di chuyển thất bại. Kiểm tra console để biết chi tiết.'
             },
             frontmatterNameField: {
-                name: 'Trường tên',
-                desc: 'Trường frontmatter dùng làm tên hiển thị ghi chú. Để trống để dùng tên tệp.',
-                placeholder: 'title'
+                name: 'Các trường tên',
+                desc: 'Danh sách trường frontmatter phân cách bằng dấu phẩy. Sử dụng giá trị không trống đầu tiên. Quay lại tên tệp.',
+                placeholder: 'tiêu đề, tên'
             },
             frontmatterCreatedField: {
                 name: 'Trường dấu thời gian tạo',

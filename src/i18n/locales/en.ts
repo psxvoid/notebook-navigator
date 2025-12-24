@@ -83,7 +83,11 @@ export const STRINGS_EN = {
         emptySearchQuery: 'Enter a search query before saving it',
         emptySearchName: 'Enter a name before saving the search',
         add: 'Add to shortcuts',
+        addNotesCount: 'Add {count} notes to shortcuts',
+        addFilesCount: 'Add {count} files to shortcuts',
         remove: 'Remove from shortcuts',
+        removeAll: 'Remove all shortcuts',
+        removeAllConfirm: 'Remove all shortcuts?',
         folderNotesPinned: 'Pinned {count} folder notes'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_EN = {
             copyPath: 'Copy file system path',
             copyRelativePath: 'Copy vault path',
             createFolderNote: 'Create folder note',
+            detachFolderNote: 'Detach folder note',
             deleteFolderNote: 'Delete folder note',
             changeIcon: 'Change icon',
             changeColor: 'Change color',
@@ -399,6 +404,7 @@ export const STRINGS_EN = {
             folderAlreadyExists: 'Folder "{name}" already exists',
             folderNotesDisabled: 'Enable folder notes in settings to convert files',
             folderNoteAlreadyLinked: 'This file already acts as a folder note',
+            folderNoteNotFound: 'No folder note in selected folder',
             folderNoteUnsupportedExtension: 'Unsupported file extension: {extension}',
             folderNoteMoveFailed: 'Failed to move file during conversion: {error}',
             folderNoteRenameConflict: 'A file named "{name}" already exists in the folder',
@@ -514,6 +520,8 @@ export const STRINGS_EN = {
         selectNextFile: 'Select next file', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Select previous file', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Convert to folder note', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Set as folder note', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Detach folder note', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Pin all folder notes', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -590,7 +598,13 @@ export const STRINGS_EN = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Appearance',
+                icon: 'Icon',
+                title: 'Title',
+                previewText: 'Preview text',
+                featureImage: 'Feature image',
+                tags: 'Tags',
+                date: 'Date',
+                parentFolder: 'Parent folder',
                 textTransformAdd: 'Add new transform',
                 textTransformPatternPlaceholder: 'Regular expression',
                 textTransformReplacementPlaceholder: 'Replacement',
@@ -693,7 +707,27 @@ export const STRINGS_EN = {
             },
             showFileIcons: {
                 name: 'Show file icons',
-                desc: 'Display file icons with left-aligned spacing. Disabling removes both icons and indentation.'
+                desc: 'Display file icons with left-aligned spacing. Disabling removes both icons and indentation. Priority: custom > file name > file type > default.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Icons by file name',
+                desc: 'Assign icons to files based on text in their names.'
+            },
+            fileNameIconMap: {
+                name: 'File name icon map',
+                desc: 'Files containing the text get the specified icon. One mapping per line: text=icon',
+                placeholder: '# Text=icon\nmeeting=calendar\ninvoice=receipt',
+                resetTooltip: 'Restore defaults'
+            },
+            showCategoryIcons: {
+                name: 'Icons by file type',
+                desc: 'Assign icons to files based on their extension.'
+            },
+            fileTypeIconMap: {
+                name: 'File type icon map',
+                desc: 'Files with the extension get the specified icon. One mapping per line: extension=icon',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Restore defaults'
             },
             optimizeNoteHeight: {
                 name: 'Optimize note height',
@@ -782,6 +816,18 @@ export const STRINGS_EN = {
             autoExpandFoldersTags: {
                 name: 'Expand on selection',
                 desc: 'Expand folders and tags when selected. In single pane mode, first selection expands, second selection shows files.'
+            },
+            springLoadedFolders: {
+                name: 'Spring-loaded folders (desktop only)',
+                desc: 'Expand folders and tags on hover during drag operations.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'First expand delay',
+                desc: 'Delay before the first folder or tag expands during a drag operation (seconds).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Subsequent expand delay',
+                desc: 'Delay before expanding additional folders or tags during the same drag operation (seconds).'
             },
             navigationBanner: {
                 name: 'Navigation banner (vault profile)',
@@ -883,7 +929,7 @@ export const STRINGS_EN = {
             },
             vaultProfiles: {
                 name: 'Vault profile',
-                desc: 'Profiles store file type visibility, hidden folders, hidden tags, hidden notes, shortcuts, and navigation banner. Switch profiles from the navigation pane header.',
+                desc: 'Profiles store file type visibility, hidden files, hidden folders, hidden tags, hidden notes, shortcuts, and navigation banner. Switch profiles from the navigation pane header.',
                 defaultName: 'Default',
                 addButton: 'Add profile',
                 editProfilesButton: 'Edit profiles',
@@ -896,7 +942,7 @@ export const STRINGS_EN = {
                 editModalTitle: 'Edit profile',
                 addModalPlaceholder: 'Profile name',
                 deleteModalTitle: 'Delete {name}',
-                deleteModalMessage: 'Remove {name}? Hidden folder, tag, and note filters saved in this profile will be deleted.',
+                deleteModalMessage: 'Remove {name}? Hidden file, folder, tag, and note filters saved in this profile will be deleted.',
                 moveUp: 'Move up',
                 moveDown: 'Move down',
                 errors: {
@@ -1241,9 +1287,9 @@ export const STRINGS_EN = {
                 noticeError: 'Migration failed. Check console for details.'
             },
             frontmatterNameField: {
-                name: 'Name field',
-                desc: 'Frontmatter field to use as the note display name. Leave empty to use the file name.',
-                placeholder: 'title'
+                name: 'Name fields',
+                desc: 'Comma-separated list of frontmatter fields. First non-empty value is used. Falls back to file name.',
+                placeholder: 'title, name'
             },
             frontmatterCreatedField: {
                 name: 'Created timestamp field',

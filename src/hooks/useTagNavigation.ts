@@ -17,11 +17,12 @@
  */
 
 import { useCallback } from 'react';
-import { useExpansionDispatch } from '../context/ExpansionContext';
+import { useExpansionDispatch, useExpansionState } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { normalizeTagPath } from '../utils/tagUtils';
-import { UNTAGGED_TAG_ID } from '../types';
+import { useFileCache } from '../context/StorageContext';
+import { navigateToTag as navigateToTagInternal, type NavigateToTagOptions } from '../utils/tagNavigation';
 
 /**
  * Custom hook that provides tag navigation functionality.
@@ -31,10 +32,13 @@ import { UNTAGGED_TAG_ID } from '../types';
  * across different components (NotebookNavigatorComponent, FileItem, etc).
  */
 export function useTagNavigation() {
+    const settings = useSettingsState();
+    const expansionState = useExpansionState();
     const selectionDispatch = useSelectionDispatch();
     const expansionDispatch = useExpansionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
+    const { findTagInTree } = useFileCache();
 
     /**
      * Navigates to a tag, expanding parent tags if it's hierarchical.
@@ -42,39 +46,44 @@ export function useTagNavigation() {
      * @param tagPath - The tag path to navigate to (e.g., "parent/child")
      */
     const navigateToTag = useCallback(
-        (tagPath: string) => {
-            const canonicalPath = normalizeTagPath(tagPath);
-            if (!canonicalPath) {
-                return;
-            }
-
-            // For hierarchical tags, expand all parent tags
-            if (canonicalPath !== UNTAGGED_TAG_ID && canonicalPath.includes('/')) {
-                const tagsToExpand: string[] = [];
-                const parts = canonicalPath.split('/');
-
-                // Build parent paths to expand
-                for (let i = 1; i <= parts.length - 1; i++) {
-                    tagsToExpand.push(parts.slice(0, i).join('/'));
+        (tagPath: string, options?: NavigateToTagOptions) => {
+            navigateToTagInternal(
+                {
+                    showTags: settings.showTags,
+                    showAllTagsFolder: settings.showAllTagsFolder,
+                    expandedTags: expansionState.expandedTags,
+                    expandedVirtualFolders: expansionState.expandedVirtualFolders,
+                    expansionDispatch,
+                    selectionDispatch,
+                    uiState: {
+                        singlePane: uiState.singlePane,
+                        currentSinglePaneView: uiState.currentSinglePaneView,
+                        focusedPane: uiState.focusedPane
+                    },
+                    uiDispatch,
+                    findTagInTree
+                },
+                tagPath,
+                {
+                    ...options,
+                    preserveNavigationFocus: options?.preserveNavigationFocus ?? false,
+                    requireTagInTree: options?.requireTagInTree ?? false
                 }
-
-                // Expand parent tags
-                if (tagsToExpand.length > 0) {
-                    expansionDispatch({ type: 'EXPAND_TAGS', tagPaths: tagsToExpand });
-                }
-            }
-
-            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: canonicalPath });
-
-            // Switch to files view in single-pane mode
-            if (uiState.singlePane) {
-                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-            }
-
-            // Set focus to navigation pane to show the selected tag
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+            );
         },
-        [selectionDispatch, expansionDispatch, uiState.singlePane, uiDispatch]
+        [
+            selectionDispatch,
+            expansionDispatch,
+            expansionState.expandedTags,
+            expansionState.expandedVirtualFolders,
+            settings.showAllTagsFolder,
+            settings.showTags,
+            findTagInTree,
+            uiDispatch,
+            uiState.currentSinglePaneView,
+            uiState.focusedPane,
+            uiState.singlePane
+        ]
     );
 
     return {

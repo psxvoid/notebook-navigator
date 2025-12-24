@@ -83,7 +83,11 @@ export const STRINGS_TR = {
         emptySearchQuery: 'Kaydetmeden önce bir arama sorgusu girin',
         emptySearchName: 'Aramayı kaydetmeden önce bir ad girin',
         add: 'Kısayollara ekle',
+        addNotesCount: 'Kısayollara {count} not ekle',
+        addFilesCount: 'Kısayollara {count} dosya ekle',
         remove: 'Kısayollardan kaldır',
+        removeAll: 'Tüm kısayolları kaldır',
+        removeAllConfirm: 'Tüm kısayolları kaldır?',
         folderNotesPinned: '{count} klasör notu sabitlendi'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_TR = {
             copyPath: 'Dosya sistemi yolunu kopyala',
             copyRelativePath: 'Kasa yolunu kopyala',
             createFolderNote: 'Klasör notu oluştur',
+            detachFolderNote: 'Klasör notunu ayır',
             deleteFolderNote: 'Klasör notunu sil',
             changeIcon: 'Simgeyi değiştir',
             changeColor: 'Rengi değiştir',
@@ -399,6 +404,7 @@ export const STRINGS_TR = {
             folderAlreadyExists: '"{name}" klasörü zaten var',
             folderNotesDisabled: 'Dosyaları dönüştürmek için ayarlarda klasör notlarını etkinleştirin',
             folderNoteAlreadyLinked: 'Bu dosya zaten klasör notu olarak işlev görüyor',
+            folderNoteNotFound: 'Seçili klasörde klasör notu yok',
             folderNoteUnsupportedExtension: 'Desteklenmeyen dosya uzantısı: {extension}',
             folderNoteMoveFailed: 'Dönüştürme sırasında dosya taşınamadı: {error}',
             folderNoteRenameConflict: 'Klasörde "{name}" adlı bir dosya zaten var',
@@ -514,6 +520,8 @@ export const STRINGS_TR = {
         selectNextFile: 'Sonraki dosyayı seç', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Önceki dosyayı seç', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Klasör notuna dönüştür', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Klasör notu olarak ayarla', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Klasör notunu ayır', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Tüm klasör notlarını sabitle', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Klasöre git', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Etikete git', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -590,7 +598,13 @@ export const STRINGS_TR = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Görünüm',
+                icon: 'Simge',
+                title: 'Başlık',
+                previewText: 'Önizleme metni',
+                featureImage: 'Öne çıkan görsel',
+                tags: 'Etiketler',
+                date: 'Tarih',
+                parentFolder: 'Üst klasör',
                 textTransformAdd: 'Yeni dönüşüm ekle',
                 textTransformPatternPlaceholder: 'Düzenli ifade',
                 textTransformReplacementPlaceholder: 'Yenisiyle değiştirme',
@@ -693,7 +707,27 @@ export const STRINGS_TR = {
             },
             showFileIcons: {
                 name: 'Dosya simgelerini göster',
-                desc: 'Dosya simgelerini sol hizalı boşlukla göster. Devre dışı bırakma hem simgeleri hem de girintiyi kaldırır.'
+                desc: 'Dosya simgelerini sol hizalı boşlukla göster. Devre dışı bırakma hem simgeleri hem de girintiyi kaldırır. Öncelik: özel > dosya adı > dosya türü > varsayılan.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Dosya adına göre simgeler',
+                desc: 'Dosyalara adlarındaki metne göre simge ata.'
+            },
+            fileNameIconMap: {
+                name: 'Dosya adı simge eşlemesi',
+                desc: 'Metni içeren dosyalar belirtilen simgeyi alır. Satır başına bir eşleme: metin=simge',
+                placeholder: '# metin=simge\ntoplantı=calendar\nfatura=receipt',
+                resetTooltip: 'Varsayılanları geri yükle'
+            },
+            showCategoryIcons: {
+                name: 'Dosya türüne göre simgeler',
+                desc: 'Dosyalara uzantılarına göre simge ata.'
+            },
+            fileTypeIconMap: {
+                name: 'Dosya türü simge eşlemesi',
+                desc: 'Uzantıya sahip dosyalar belirtilen simgeyi alır. Satır başına bir eşleme: uzantı=simge',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Varsayılanları geri yükle'
             },
             optimizeNoteHeight: {
                 name: 'Not yüksekliğini optimize et',
@@ -782,6 +816,18 @@ export const STRINGS_TR = {
             autoExpandFoldersTags: {
                 name: 'Seçimde genişlet',
                 desc: 'Seçildiğinde klasörleri ve etiketleri genişlet. Tek bölme modunda ilk seçim genişletir, ikinci seçim dosyaları gösterir.'
+            },
+            springLoadedFolders: {
+                name: 'Sürüklerken genişlet (yalnızca masaüstü)',
+                desc: 'Sürükleme sırasında üzerine gelirken klasörleri ve etiketleri genişlet.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'İlk genişletme gecikmesi',
+                desc: 'Sürükleme sırasında ilk klasör veya etiket genişlemeden önceki gecikme (saniye).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Sonraki genişletme gecikmesi',
+                desc: 'Aynı sürükleme sırasında ek klasörler veya etiketler genişlemeden önceki gecikme (saniye).'
             },
             navigationBanner: {
                 name: 'Gezinme afişi (kasa profili)',
@@ -884,7 +930,7 @@ export const STRINGS_TR = {
             },
             vaultProfiles: {
                 name: 'Kasa profili',
-                desc: 'Profiller dosya türü görünürlüğünü, gizli klasörleri, gizli etiketleri, gizli notları, kısayolları ve gezinme afişini saklar. Gezinme bölmesi başlığından profilleri değiştir.',
+                desc: 'Profiller dosya türü görünürlüğünü, gizli dosyaları, gizli klasörleri, gizli etiketleri, gizli notları, kısayolları ve gezinme afişini saklar. Gezinme bölmesi başlığından profilleri değiştir.',
                 defaultName: 'Varsayılan',
                 addButton: 'Profil ekle',
                 editProfilesButton: 'Profilleri düzenle',
@@ -897,7 +943,7 @@ export const STRINGS_TR = {
                 editModalTitle: 'Profili düzenle',
                 addModalPlaceholder: 'Profil adı',
                 deleteModalTitle: '{name} silinsin mi',
-                deleteModalMessage: '{name} kaldırılsın mı? Bu profilde kayıtlı gizli klasör, etiket ve not filtreleri silinecek.',
+                deleteModalMessage: '{name} kaldırılsın mı? Bu profilde kayıtlı gizli dosya, klasör, etiket ve not filtreleri silinecek.',
                 moveUp: 'Yukarı taşı',
                 moveDown: 'Aşağı taşı',
                 errors: {
@@ -1242,9 +1288,9 @@ export const STRINGS_TR = {
                 noticeError: 'Taşıma başarısız. Ayrıntılar için konsolu kontrol edin.'
             },
             frontmatterNameField: {
-                name: 'Ad alanı',
-                desc: 'Not görünen adı olarak kullanılacak frontmatter alanı. Dosya adını kullanmak için boş bırakın.',
-                placeholder: 'başlık'
+                name: 'Ad alanları',
+                desc: 'Virgülle ayrılmış frontmatter alanları listesi. İlk boş olmayan değer kullanılır. Dosya adına geri döner.',
+                placeholder: 'başlık, ad'
             },
             frontmatterCreatedField: {
                 name: 'Oluşturma zaman damgası alanı',

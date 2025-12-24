@@ -24,11 +24,11 @@ function createSettings(overrides: Partial<NotebookNavigatorSettings> = {}): Not
 describe('extractMetadataFromCache - icon extraction', () => {
     it('normalizes plain emoji values to emoji provider format', () => {
         const settings = createSettings();
-        const metadata = {
+        const metadata: CachedMetadata = {
             frontmatter: {
                 icon: '🔭'
             }
-        } as CachedMetadata;
+        };
 
         const result = extractMetadataFromCache(metadata, settings);
 
@@ -37,11 +37,11 @@ describe('extractMetadataFromCache - icon extraction', () => {
 
     it('retains emoji provider values without modification', () => {
         const settings = createSettings();
-        const metadata = {
+        const metadata: CachedMetadata = {
             frontmatter: {
                 icon: 'emoji:🔭'
             }
-        } as CachedMetadata;
+        };
 
         const result = extractMetadataFromCache(metadata, settings);
 
@@ -50,14 +50,64 @@ describe('extractMetadataFromCache - icon extraction', () => {
 
     it('retains non-emoji icon values', () => {
         const settings = createSettings();
-        const metadata = {
+        const metadata: CachedMetadata = {
             frontmatter: {
                 icon: 'SiGithub'
             }
-        } as CachedMetadata;
+        };
 
         const result = extractMetadataFromCache(metadata, settings);
 
         expect(result.icon).toBe('simple-icons:github');
+    });
+});
+
+describe('extractMetadataFromCache - name extraction', () => {
+    it('uses the first non-empty field from a comma-separated list', () => {
+        const settings = createSettings({
+            frontmatterNameField: 'title, name'
+        });
+        const metadata: CachedMetadata = {
+            frontmatter: {
+                title: '   ',
+                name: 'Project X'
+            }
+        };
+
+        const result = extractMetadataFromCache(metadata, settings);
+
+        expect(result.fn).toBe('Project X');
+    });
+
+    it('respects field order in a comma-separated list', () => {
+        const settings = createSettings({
+            frontmatterNameField: 'title, name'
+        });
+        const metadata: CachedMetadata = {
+            frontmatter: {
+                title: 'Title value',
+                name: 'Name value'
+            }
+        };
+
+        const result = extractMetadataFromCache(metadata, settings);
+
+        expect(result.fn).toBe('Title value');
+    });
+
+    it('supports array values and uses the first non-empty string entry', () => {
+        const settings = createSettings({
+            frontmatterNameField: 'title, name'
+        });
+        const metadata: CachedMetadata = {
+            frontmatter: {
+                title: [null, '  ', 'From array'],
+                name: 'Fallback'
+            }
+        };
+
+        const result = extractMetadataFromCache(metadata, settings);
+
+        expect(result.fn).toBe('From array');
     });
 });

@@ -82,7 +82,11 @@ export const STRINGS_PL = {
         emptySearchQuery: 'Wprowadź zapytanie wyszukiwania przed zapisaniem',
         emptySearchName: 'Wprowadź nazwę przed zapisaniem wyszukiwania',
         add: 'Dodaj do skrótów',
+        addNotesCount: 'Dodaj {count} notatek do skrótów',
+        addFilesCount: 'Dodaj {count} plików do skrótów',
         remove: 'Usuń ze skrótów',
+        removeAll: 'Usuń wszystkie skróty',
+        removeAllConfirm: 'Usunąć wszystkie skróty?',
         folderNotesPinned: 'Przypięto {count} notatek folderu'
     },
 
@@ -182,6 +186,7 @@ export const STRINGS_PL = {
             copyPath: 'Kopiuj ścieżkę systemu plików',
             copyRelativePath: 'Kopiuj ścieżkę skarbca',
             createFolderNote: 'Utwórz notatkę folderu',
+            detachFolderNote: 'Odłącz notatkę folderu',
             deleteFolderNote: 'Usuń notatkę folderu',
             changeIcon: 'Zmień ikonę',
             changeColor: 'Zmień kolor ikony',
@@ -401,6 +406,7 @@ export const STRINGS_PL = {
             folderAlreadyExists: 'Folder "{name}" już istnieje',
             folderNotesDisabled: 'Włącz notatki folderu w ustawieniach, aby konwertować pliki',
             folderNoteAlreadyLinked: 'Ten plik już działa jako notatka folderu',
+            folderNoteNotFound: 'Brak notatki folderu w wybranym folderze',
             folderNoteUnsupportedExtension: 'Nieobsługiwane rozszerzenie pliku: {extension}',
             folderNoteMoveFailed: 'Nie udało się przenieść pliku podczas konwersji: {error}',
             folderNoteRenameConflict: 'Plik o nazwie "{name}" już istnieje w folderze',
@@ -516,6 +522,8 @@ export const STRINGS_PL = {
         selectNextFile: 'Wybierz następny plik', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Wybierz poprzedni plik', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Konwertuj na notatkę folderu', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Ustaw jako notatkę folderu', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Odłącz notatkę folderu', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Przypnij wszystkie notatki folderu', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Przejdź do folderu', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Przejdź do tagu', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -592,7 +600,13 @@ export const STRINGS_PL = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Wygląd',
+                icon: 'Ikona',
+                title: 'Tytuł',
+                previewText: 'Tekst podglądu',
+                featureImage: 'Obraz wyróżniający',
+                tags: 'Tagi',
+                date: 'Data',
+                parentFolder: 'Folder nadrzędny',
                 textTransformAdd: 'Dodaj nową transformację',
                 textTransformPatternPlaceholder: 'Wyrażenie regularne',
                 textTransformReplacementPlaceholder: 'Wymiana',
@@ -695,7 +709,27 @@ export const STRINGS_PL = {
             },
             showFileIcons: {
                 name: 'Pokaż ikony plików',
-                desc: 'Wyświetl ikony plików z wyrównaniem do lewej. Wyłączenie usuwa zarówno ikony, jak i wcięcie.'
+                desc: 'Wyświetl ikony plików z wyrównaniem do lewej. Wyłączenie usuwa zarówno ikony, jak i wcięcie. Priorytet: niestandardowe > nazwa pliku > typ pliku > domyślne.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Ikony według nazwy pliku',
+                desc: 'Przypisz ikony do plików na podstawie tekstu w ich nazwach.'
+            },
+            fileNameIconMap: {
+                name: 'Mapowanie ikon nazwy pliku',
+                desc: 'Pliki zawierające tekst otrzymują określoną ikonę. Jedno mapowanie na linię: tekst=ikona',
+                placeholder: '# tekst=ikona\nspotkanie=calendar\nfaktura=receipt',
+                resetTooltip: 'Przywróć wartości domyślne'
+            },
+            showCategoryIcons: {
+                name: 'Ikony według typu pliku',
+                desc: 'Przypisz ikony do plików na podstawie ich rozszerzenia.'
+            },
+            fileTypeIconMap: {
+                name: 'Mapowanie ikon typu pliku',
+                desc: 'Pliki z rozszerzeniem otrzymują określoną ikonę. Jedno mapowanie na linię: rozszerzenie=ikona',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Przywróć wartości domyślne'
             },
             optimizeNoteHeight: {
                 name: 'Optymalizuj wysokość notatek',
@@ -784,6 +818,18 @@ export const STRINGS_PL = {
             autoExpandFoldersTags: {
                 name: 'Rozwiń przy wyborze',
                 desc: 'Rozwiń foldery i tagi po wybraniu. W trybie pojedynczego panelu pierwsze kliknięcie rozwija, drugie pokazuje pliki.'
+            },
+            springLoadedFolders: {
+                name: 'Rozwiń podczas przeciągania (tylko desktop)',
+                desc: 'Rozwiń foldery i tagi przy najechaniu podczas przeciągania.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Opóźnienie pierwszego rozwinięcia',
+                desc: 'Opóźnienie przed rozwinięciem pierwszego folderu lub tagu podczas przeciągania (sekundy).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Opóźnienie kolejnych rozwinięć',
+                desc: 'Opóźnienie przed rozwijaniem kolejnych folderów lub tagów podczas tego samego przeciągania (sekundy).'
             },
             navigationBanner: {
                 name: 'Baner nawigacji (profil sejfu)',
@@ -886,7 +932,7 @@ export const STRINGS_PL = {
             },
             vaultProfiles: {
                 name: 'Profil sejfu',
-                desc: 'Profile przechowują widoczność typów plików, ukryte foldery, ukryte tagi, ukryte notatki, skróty i baner nawigacji. Zmień profil z nagłówka panelu nawigacji.',
+                desc: 'Profile przechowują widoczność typów plików, ukryte pliki, ukryte foldery, ukryte tagi, ukryte notatki, skróty i baner nawigacji. Zmień profil z nagłówka panelu nawigacji.',
                 defaultName: 'Domyślny',
                 addButton: 'Dodaj profil',
                 editProfilesButton: 'Edytuj profile',
@@ -899,7 +945,8 @@ export const STRINGS_PL = {
                 editModalTitle: 'Edytuj profil',
                 addModalPlaceholder: 'Nazwa profilu',
                 deleteModalTitle: 'Usuń {name}',
-                deleteModalMessage: 'Usunąć {name}? Filtry ukrytych folderów, tagów i notatek zapisane w tym profilu zostaną usunięte.',
+                deleteModalMessage:
+                    'Usunąć {name}? Filtry ukrytych plików, folderów, tagów i notatek zapisane w tym profilu zostaną usunięte.',
                 moveUp: 'Przenieś w górę',
                 moveDown: 'Przenieś w dół',
                 errors: {
@@ -1221,9 +1268,9 @@ export const STRINGS_PL = {
                 desc: 'Używaj frontmatter dla nazwy notatki, znaczników czasu, ikon i kolorów'
             },
             frontmatterNameField: {
-                name: 'Pole nazwy',
-                desc: 'Pole frontmatter do użycia jako wyświetlana nazwa notatki. Zostaw puste aby użyć nazwy pliku.',
-                placeholder: 'title'
+                name: 'Pola nazwy',
+                desc: 'Lista pól frontmatter oddzielonych przecinkami. Używana jest pierwsza niepusta wartość. Powrót do nazwy pliku.',
+                placeholder: 'tytuł, nazwa'
             },
             frontmatterIconField: {
                 name: 'Pole ikony',

@@ -23,6 +23,8 @@ import type { FolderNoteCreationPreference } from '../types/folderNote';
 import type { KeyboardShortcutConfig } from '../utils/keyboardShortcuts';
 import type { ShortcutEntry } from '../types/shortcuts';
 import type { SearchProvider } from '../types/search';
+import type { IconId } from '../services/icons/types';
+
 import type { PatternReplaceSource } from 'src/services/content/common/TextReplacerTransform';
 
 /** Available sort options for file listing */
@@ -151,6 +153,9 @@ export interface NotebookNavigatorSettings {
     // Folders & tags tab
     autoSelectFirstFileOnFocusChange: boolean;
     autoExpandFoldersTags: boolean;
+    springLoadedFolders: boolean;
+    springLoadedFoldersInitialDelay: number;
+    springLoadedFoldersSubsequentDelay: number;
     showFolderIcons: boolean;
     showRootFolder: boolean;
     inheritFolderColors: boolean;
@@ -177,7 +182,6 @@ export interface NotebookNavigatorSettings {
     filterPinnedByFolder: boolean;
     showPinnedGroupHeader: boolean;
     showPinnedIcon: boolean;
-    showFileIcons: boolean;
     optimizeNoteHeight: boolean;
     compactItemHeight: number;
     compactItemHeightScaleText: boolean;
@@ -197,28 +201,33 @@ export interface NotebookNavigatorSettings {
     frontmatterModifiedField: string;
     frontmatterDateFormat: string;
     saveMetadataToFrontmatter: boolean;
+    showFileIcons: boolean;
+    showFilenameMatchIcons: boolean;
+    fileNameIconMap: Record<string, IconId>;
+    showCategoryIcons: boolean;
+    fileTypeIconMap: Record<string, IconId>;
     fileNameRows: number;
-    showFileDate: boolean;
-    alphabeticalDateMode: AlphabeticalDateMode;
-    showFileTags: boolean;
-    collapseFileTagsToSelectedTag: boolean;
-    colorFileTags: boolean;
-    prioritizeColoredFileTags: boolean;
-    showFileTagAncestors: boolean;
-    showFileTagsInCompactMode: boolean;
-    showParentFolder: boolean;
-    parentFolderClickRevealsFile: boolean;
-    showParentFolderColor: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipCodeBlocksInPreview: boolean;
     stripHtmlInPreview: boolean;
-    previewProperties: string[];
     previewRows: number;
+    previewProperties: string[];
     showFeatureImage: boolean;
     featureImageProperties: string[];
     forceSquareFeatureImage: boolean;
     useEmbeddedImageFallback: boolean;
+    showFileTags: boolean;
+    colorFileTags: boolean;
+    prioritizeColoredFileTags: boolean;
+    showFileTagAncestors: boolean;
+    showFileTagsInCompactMode: boolean;
+    collapseFileTagsToSelectedTag: boolean;
+    showFileDate: boolean;
+    alphabeticalDateMode: AlphabeticalDateMode;
+    showParentFolder: boolean;
+    parentFolderClickRevealsFile: boolean;
+    showParentFolderColor: boolean;
     featureImageSize: number;
     featureImageForPDF: boolean;
     featureImagePersistIntermediate: boolean;

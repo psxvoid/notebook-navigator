@@ -83,7 +83,11 @@ export const STRINGS_PT = {
         emptySearchQuery: 'Introduza uma consulta de pesquisa antes de guardar',
         emptySearchName: 'Introduza um nome antes de guardar a pesquisa',
         add: 'Adicionar aos atalhos',
+        addNotesCount: 'Adicionar {count} notas aos atalhos',
+        addFilesCount: 'Adicionar {count} ficheiros aos atalhos',
         remove: 'Remover dos atalhos',
+        removeAll: 'Remover todos os atalhos',
+        removeAllConfirm: 'Remover todos os atalhos?',
         folderNotesPinned: '{count} notas de pasta fixadas'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_PT = {
             copyPath: 'Copiar caminho do sistema de ficheiros',
             copyRelativePath: 'Copiar caminho do cofre',
             createFolderNote: 'Criar nota de pasta',
+            detachFolderNote: 'Desvincular nota de pasta',
             deleteFolderNote: 'Eliminar nota de pasta',
             changeIcon: 'Alterar ícone',
             changeColor: 'Alterar cor',
@@ -399,6 +404,7 @@ export const STRINGS_PT = {
             folderAlreadyExists: 'A pasta "{name}" já existe',
             folderNotesDisabled: 'Ative as notas de pasta nas definições para converter ficheiros',
             folderNoteAlreadyLinked: 'Este ficheiro já funciona como nota de pasta',
+            folderNoteNotFound: 'Nenhuma nota de pasta na pasta selecionada',
             folderNoteUnsupportedExtension: 'Extensão de ficheiro não suportada: {extension}',
             folderNoteMoveFailed: 'Falha ao mover ficheiro durante a conversão: {error}',
             folderNoteRenameConflict: 'Já existe um ficheiro com o nome "{name}" na pasta',
@@ -514,6 +520,8 @@ export const STRINGS_PT = {
         selectNextFile: 'Selecionar ficheiro seguinte', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Selecionar ficheiro anterior', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Converter em nota de pasta', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Definir como nota de pasta', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Desvincular nota de pasta', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Fixar todas as notas de pasta', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Navegar para pasta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar para etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -590,7 +598,13 @@ export const STRINGS_PT = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Aparência',
+                icon: 'Ícone',
+                title: 'Título',
+                previewText: 'Texto de pré-visualização',
+                featureImage: 'Imagem de destaque',
+                tags: 'Etiquetas',
+                date: 'Data',
+                parentFolder: 'Pasta superior',
                 textTransformAdd: 'Adicionar nova transformação',
                 textTransformPatternPlaceholder: 'Expressão regular',
                 textTransformReplacementPlaceholder: 'Substituição',
@@ -693,7 +707,27 @@ export const STRINGS_PT = {
             },
             showFileIcons: {
                 name: 'Mostrar ícones de ficheiros',
-                desc: 'Exibir ícones de ficheiros com espaçamento alinhado à esquerda. Desativar remove ícones e indentação.'
+                desc: 'Exibir ícones de ficheiros com espaçamento alinhado à esquerda. Desativar remove ícones e indentação. Prioridade: personalizado > nome de ficheiro > tipo de ficheiro > predefinido.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Ícones por nome de ficheiro',
+                desc: 'Atribuir ícones a ficheiros com base no texto nos seus nomes.'
+            },
+            fileNameIconMap: {
+                name: 'Mapa de ícones por nome',
+                desc: 'Os ficheiros contendo o texto recebem o ícone especificado. Um mapeamento por linha: texto=ícone',
+                placeholder: '# texto=ícone\nreunião=calendar\nfatura=receipt',
+                resetTooltip: 'Restaurar valores predefinidos'
+            },
+            showCategoryIcons: {
+                name: 'Ícones por tipo de ficheiro',
+                desc: 'Atribuir ícones a ficheiros com base na sua extensão.'
+            },
+            fileTypeIconMap: {
+                name: 'Mapa de ícones por tipo',
+                desc: 'Os ficheiros com a extensão recebem o ícone especificado. Um mapeamento por linha: extensão=ícone',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Restaurar valores predefinidos'
             },
             optimizeNoteHeight: {
                 name: 'Otimizar altura das notas',
@@ -782,6 +816,18 @@ export const STRINGS_PT = {
             autoExpandFoldersTags: {
                 name: 'Expandir ao selecionar',
                 desc: 'Expandir pastas e etiquetas quando selecionadas. No modo de painel único, a primeira seleção expande, a segunda mostra ficheiros.'
+            },
+            springLoadedFolders: {
+                name: 'Expandir ao arrastar (apenas computador)',
+                desc: 'Expandir pastas e etiquetas ao passar sobre elas durante o arrasto.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Atraso da primeira expansão',
+                desc: 'Atraso antes de expandir a primeira pasta ou etiqueta durante um arrasto (segundos).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Atraso das expansões seguintes',
+                desc: 'Atraso antes de expandir pastas ou etiquetas adicionais durante o mesmo arrasto (segundos).'
             },
             navigationBanner: {
                 name: 'Banner de navegação (perfil do cofre)',
@@ -884,7 +930,7 @@ export const STRINGS_PT = {
             },
             vaultProfiles: {
                 name: 'Perfil do cofre',
-                desc: 'Os perfis armazenam visibilidade de tipos de ficheiro, pastas ocultas, etiquetas ocultas, notas ocultas, atalhos e banner de navegação. Mude de perfis a partir do cabeçalho do painel de navegação.',
+                desc: 'Os perfis armazenam visibilidade de tipos de ficheiro, ficheiros ocultos, pastas ocultas, etiquetas ocultas, notas ocultas, atalhos e banner de navegação. Mude de perfis a partir do cabeçalho do painel de navegação.',
                 defaultName: 'Predefinido',
                 addButton: 'Adicionar perfil',
                 editProfilesButton: 'Editar perfis',
@@ -898,7 +944,7 @@ export const STRINGS_PT = {
                 addModalPlaceholder: 'Nome do perfil',
                 deleteModalTitle: 'Eliminar {name}',
                 deleteModalMessage:
-                    'Remover {name}? Os filtros de pastas, etiquetas e notas ocultas guardados neste perfil serão eliminados.',
+                    'Remover {name}? Os filtros de ficheiros, pastas, etiquetas e notas ocultas guardados neste perfil serão eliminados.',
                 moveUp: 'Mover para cima',
                 moveDown: 'Mover para baixo',
                 errors: {
@@ -1244,9 +1290,9 @@ export const STRINGS_PT = {
                 noticeError: 'Migração falhou. Verifique a consola para detalhes.'
             },
             frontmatterNameField: {
-                name: 'Campo de nome',
-                desc: 'Campo frontmatter a usar como nome de exibição da nota. Deixe vazio para usar o nome do ficheiro.',
-                placeholder: 'title'
+                name: 'Campos de nome',
+                desc: 'Lista de campos frontmatter separados por vírgula. O primeiro valor não vazio é usado. Usa o nome do ficheiro como alternativa.',
+                placeholder: 'título, nome'
             },
             frontmatterCreatedField: {
                 name: 'Campo de timestamp de criação',

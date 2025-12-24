@@ -17,7 +17,7 @@
  */
 
 import { FrontMatterCache } from 'obsidian';
-import { isExcalidrawFileName } from './fileNameUtils';
+import { hasExcalidrawFrontmatterFlag, isExcalidrawFileName } from './fileNameUtils';
 import { NotebookNavigatorSettings } from '../settings';
 import { getRecordValue } from './typeGuards';
 import { findFencedCodeBlockRanges, findInlineCodeRanges, findRangeContainingIndex } from './codeRangeUtils';
@@ -645,30 +645,6 @@ function resolvePreviewPropertyValue(value: unknown): string | null {
     return null;
 }
 
-/**
- * Checks if a frontmatter value indicates the file is an Excalidraw drawing
- */
-function isTruthyExcalidrawPluginFlag(value: unknown): boolean {
-    if (typeof value === 'boolean') {
-        return value;
-    }
-
-    if (typeof value === 'number') {
-        return value !== 0;
-    }
-
-    if (typeof value === 'string') {
-        const trimmed = value.trim();
-        if (!trimmed) {
-            return false;
-        }
-        const normalized = trimmed.toLowerCase();
-        return normalized !== 'false' && normalized !== '0';
-    }
-
-    return Boolean(value);
-}
-
 export class PreviewTextUtils {
     /**
      * Checks if a file is an Excalidraw drawing
@@ -683,8 +659,7 @@ export class PreviewTextUtils {
         }
 
         // Check frontmatter for excalidraw-plugin property
-        const pluginFlag = getRecordValue(frontmatter, 'excalidraw-plugin');
-        if (isTruthyExcalidrawPluginFlag(pluginFlag)) {
+        if (hasExcalidrawFrontmatterFlag(frontmatter)) {
             return true;
         }
 

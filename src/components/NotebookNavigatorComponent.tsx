@@ -32,7 +32,6 @@ import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useNavigationActions } from '../hooks/useNavigationActions';
 import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
-import { useTagNavigation } from '../hooks/useTagNavigation';
 import { useFileCache } from '../context/StorageContext';
 import { strings } from '../i18n';
 import { runAsyncAction } from '../utils/async';
@@ -88,7 +87,8 @@ export interface NotebookNavigatorHandle {
     createNoteInSelectedFolder: () => Promise<void>;
     moveSelectedFiles: () => Promise<void>;
     addShortcutForCurrentSelection: () => Promise<void>;
-    navigateToFolder: (folderPath: string, options?: NavigateToFolderOptions) => void;
+    navigateToFolder: (folder: TFolder, options?: NavigateToFolderOptions) => void;
+    navigateToTag: (tagPath: string) => void;
     navigateToFolderWithModal: () => void;
     navigateToTagWithModal: () => void;
     addTagToSelectedFiles: () => Promise<void>;
@@ -420,16 +420,13 @@ export const NotebookNavigatorComponent = React.memo(
         );
 
         // Use navigator reveal logic
-        const { revealFileInActualFolder, revealFileInNearestFolder, navigateToFolder, revealTag } = useNavigatorReveal({
+        const { revealFileInActualFolder, revealFileInNearestFolder, navigateToFolder, navigateToTag, revealTag } = useNavigatorReveal({
             app,
             navigationPaneRef,
             listPaneRef,
             focusNavigationPane: focusNavigationPaneCallback,
             focusFilesPane: focusFilesPaneCallback
         });
-
-        // Use tag navigation logic
-        const { navigateToTag } = useTagNavigation();
 
         // Handles file reveal from shortcuts, using nearest folder navigation
         const handleShortcutNoteReveal = useCallback(
@@ -662,13 +659,14 @@ export const NotebookNavigatorComponent = React.memo(
                     showNotice(strings.common.noSelection, { variant: 'warning' });
                 },
                 navigateToFolder,
+                navigateToTag,
                 navigateToFolderWithModal: () => {
                     // Show the folder selection modal for navigation
                     const modal = new FolderSuggestModal(
                         app,
                         (targetFolder: TFolder) => {
                             // Navigate to the selected folder
-                            navigateToFolder(targetFolder.path, { preserveNavigationFocus: true });
+                            navigateToFolder(targetFolder, { preserveNavigationFocus: true });
                         },
                         strings.modals.folderSuggest.navigatePlaceholder,
                         strings.modals.folderSuggest.instructions.select,
@@ -930,6 +928,7 @@ export const NotebookNavigatorComponent = React.memo(
                     <NavigationPane
                         ref={navigationPaneRef}
                         style={navigationPaneStyle}
+                        uiScale={uiScale}
                         rootContainerRef={containerRef}
                         searchTagFilters={searchTagFilters}
                         onExecuteSearchShortcut={handleSearchShortcutExecution}
