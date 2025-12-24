@@ -838,22 +838,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         await rebuildCacheCommon(CacheRebuildMode.DropDatabaseSlow)
     }, [rebuildCacheCommon])
 
-    /**
-     * Memoized context value to prevent unnecessary re-renders
-     *
-     * This memo creates the context value object that will be provided to all child
-     * components. It includes:
-     * - Helper methods for getting file metadata with frontmatter support
-     * - Direct database access methods
-     * - Tag tree navigation methods
-     * - Storage state information
-     *
-     * The value is memoized to only recreate when its dependencies change,
-     * preventing child components from re-rendering unnecessarily.
-     */
-    const contextValue = useMemo(() => {
-        // Gets the display name for a file, using frontmatter if configured
-        const getFileDisplayName = (file: TFile): string => {
+    const getFileDisplayName = useCallback(
+        (file: TFile): string => {
             const cachedDisplayName = getDBInstance().getFile(file.path)?.metadata?.name
 
             if (cachedDisplayName != null) {
@@ -871,10 +857,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             }
 
             return transformTitle(displayName, settings)
-        };
+        },
+        [app, settings]
+    );
 
-        // Gets the creation time for a file, using frontmatter if configured
-        const getFileCreatedTime = (file: TFile): number => {
+    const getFileCreatedTime = useCallback(
+        (file: TFile): number => {
             if (settings.useFrontmatterMetadata) {
                 const metadata = extractMetadata(app, file, settings);
                 if (
@@ -887,10 +875,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             }
 
             return file.stat.ctime;
-        };
+        },
+        [app, settings]
+    );
 
-        // Gets the modification time for a file, using frontmatter if configured
-        const getFileModifiedTime = (file: TFile): number => {
+    const getFileModifiedTime = useCallback(
+        (file: TFile): number => {
             if (settings.useFrontmatterMetadata) {
                 const metadata = extractMetadata(app, file, settings);
                 if (
@@ -903,10 +893,12 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             }
 
             return file.stat.mtime;
-        };
+        },
+        [app, settings]
+    );
 
-        // Gets all metadata for a file in one call (name, created, modified)
-        const getFileMetadata = (file: TFile): { name: string; created: number; modified: number } => {
+    const getFileMetadata = useCallback(
+        (file: TFile): { name: string; created: number; modified: number } => {
             let extractedMetadata: ProcessedMetadata | null = null;
             if (settings.useFrontmatterMetadata) {
                 extractedMetadata = extractMetadata(app, file, settings);
@@ -915,16 +907,36 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             return {
                 name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
                 created:
-                    extractedMetadata?.fc !== undefined && extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
+                    extractedMetadata?.fc !== undefined &&
+                    extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    extractedMetadata.fc !== METADATA_SENTINEL.PARSE_FAILED
                         ? extractedMetadata.fc
                         : file.stat.ctime,
                 modified:
-                    extractedMetadata?.fm !== undefined && extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
+                    extractedMetadata?.fm !== undefined &&
+                    extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    extractedMetadata.fm !== METADATA_SENTINEL.PARSE_FAILED
                         ? extractedMetadata.fm
                         : file.stat.mtime
             };
-        };
+        },
+        [app, settings]
+    );
 
+    /**
+     * Memoized context value to prevent unnecessary re-renders
+     *
+     * This memo creates the context value object that will be provided to all child
+     * components. It includes:
+     * - Helper methods for getting file metadata with frontmatter support
+     * - Direct database access methods
+     * - Tag tree navigation methods
+     * - Storage state information
+     *
+     * The value is memoized to only recreate when its dependencies change,
+     * preventing child components from re-rendering unnecessarily.
+     */
+    const contextValue = useMemo(() => {
         // Direct accessors for tag tree data structures
         const getTagTree = () => fileData.tagTree;
 
@@ -967,7 +979,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             rebuildCache,
             rebuildCacheFast
         };
-    }, [fileData, settings, app, isStorageReady, rebuildCache, rebuildCacheFast]);
+    }, [fileData, getFileDisplayName, getFileCreatedTime, getFileModifiedTime, getFileMetadata, isStorageReady, rebuildCache, rebuildCacheFast]);
 
     /**
      * Centralized handler for all content-related settings changes

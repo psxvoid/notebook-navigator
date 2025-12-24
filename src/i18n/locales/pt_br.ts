@@ -83,7 +83,11 @@ export const STRINGS_PT_BR = {
         emptySearchQuery: 'Digite uma consulta antes de salvar',
         emptySearchName: 'Digite um nome antes de salvar a pesquisa',
         add: 'Adicionar aos atalhos',
+        addNotesCount: 'Adicionar {count} notas aos atalhos',
+        addFilesCount: 'Adicionar {count} arquivos aos atalhos',
         remove: 'Remover dos atalhos',
+        removeAll: 'Remover todos os atalhos',
+        removeAllConfirm: 'Remover todos os atalhos?',
         folderNotesPinned: '{count} notas de pasta fixadas'
     },
 
@@ -184,6 +188,7 @@ export const STRINGS_PT_BR = {
             copyPath: 'Copiar caminho do sistema de arquivos',
             copyRelativePath: 'Copiar caminho do cofre',
             createFolderNote: 'Criar nota de pasta',
+            detachFolderNote: 'Desvincular nota de pasta',
             deleteFolderNote: 'Excluir nota de pasta',
             changeIcon: 'Alterar ícone',
             changeColor: 'Alterar cor',
@@ -400,6 +405,7 @@ export const STRINGS_PT_BR = {
             folderAlreadyExists: 'A pasta "{name}" já existe',
             folderNotesDisabled: 'Ative as notas de pasta nas configurações para converter arquivos',
             folderNoteAlreadyLinked: 'Este arquivo já funciona como uma nota de pasta',
+            folderNoteNotFound: 'Nenhuma nota de pasta na pasta selecionada',
             folderNoteUnsupportedExtension: 'Extensão de arquivo não suportada: {extension}',
             folderNoteMoveFailed: 'Falha ao mover arquivo durante conversão: {error}',
             folderNoteRenameConflict: 'Um arquivo chamado "{name}" já existe na pasta',
@@ -515,6 +521,8 @@ export const STRINGS_PT_BR = {
         selectNextFile: 'Selecionar próximo arquivo',
         selectPreviousFile: 'Selecionar arquivo anterior',
         convertToFolderNote: 'Converter em nota de pasta',
+        setAsFolderNote: 'Definir como nota de pasta',
+        detachFolderNote: 'Desvincular nota de pasta',
         pinAllFolderNotes: 'Fixar todas as notas de pasta',
         navigateToFolder: 'Navegar para pasta',
         navigateToTag: 'Navegar para tag',
@@ -587,7 +595,13 @@ export const STRINGS_PT_BR = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Aparência'
+                icon: 'Ícone',
+                title: 'Título',
+                previewText: 'Texto de pré-visualização',
+                featureImage: 'Imagem de destaque',
+                tags: 'Etiquetas',
+                date: 'Data',
+                parentFolder: 'Pasta superior'
             }
         },
         items: {
@@ -686,7 +700,27 @@ export const STRINGS_PT_BR = {
             },
             showFileIcons: {
                 name: 'Mostrar ícones de arquivo',
-                desc: 'Exibir ícones de arquivo com espaçamento alinhado à esquerda. Desativar remove tanto ícones quanto recuo.'
+                desc: 'Exibir ícones de arquivo com espaçamento alinhado à esquerda. Desativar remove tanto ícones quanto recuo. Prioridade: personalizado > nome de arquivo > tipo de arquivo > padrão.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Ícones por nome de arquivo',
+                desc: 'Atribuir ícones a arquivos com base no texto em seus nomes.'
+            },
+            fileNameIconMap: {
+                name: 'Mapa de ícones por nome',
+                desc: 'Os arquivos contendo o texto recebem o ícone especificado. Um mapeamento por linha: texto=ícone',
+                placeholder: '# texto=ícone\nreunião=calendar\nfatura=receipt',
+                resetTooltip: 'Restaurar valores padrão'
+            },
+            showCategoryIcons: {
+                name: 'Ícones por tipo de arquivo',
+                desc: 'Atribuir ícones a arquivos com base em sua extensão.'
+            },
+            fileTypeIconMap: {
+                name: 'Mapa de ícones por tipo',
+                desc: 'Os arquivos com a extensão recebem o ícone especificado. Um mapeamento por linha: extensão=ícone',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Restaurar valores padrão'
             },
             optimizeNoteHeight: {
                 name: 'Otimizar altura da nota',
@@ -775,6 +809,18 @@ export const STRINGS_PT_BR = {
             autoExpandFoldersTags: {
                 name: 'Expandir ao selecionar',
                 desc: 'Expandir pastas e tags ao selecionar. No modo de painel único, a primeira seleção expande, a segunda mostra arquivos.'
+            },
+            springLoadedFolders: {
+                name: 'Expandir ao arrastar (apenas desktop)',
+                desc: 'Expandir pastas e tags ao passar o mouse sobre elas durante o arraste.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Atraso da primeira expansão',
+                desc: 'Atraso antes de expandir a primeira pasta ou tag durante um arraste (segundos).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Atraso das expansões seguintes',
+                desc: 'Atraso antes de expandir pastas ou tags adicionais durante o mesmo arraste (segundos).'
             },
             navigationBanner: {
                 name: 'Banner de navegação (perfil de cofre)',
@@ -877,7 +923,7 @@ export const STRINGS_PT_BR = {
             },
             vaultProfiles: {
                 name: 'Perfil do cofre',
-                desc: 'Perfis armazenam visibilidade de tipos de arquivo, pastas ocultas, tags ocultas, notas ocultas, atalhos e banner de navegação. Alterne perfis pelo cabeçalho do painel de navegação.',
+                desc: 'Perfis armazenam visibilidade de tipos de arquivo, arquivos ocultos, pastas ocultas, tags ocultas, notas ocultas, atalhos e banner de navegação. Alterne perfis pelo cabeçalho do painel de navegação.',
                 defaultName: 'Padrão',
                 addButton: 'Adicionar perfil',
                 editProfilesButton: 'Editar perfis',
@@ -890,7 +936,8 @@ export const STRINGS_PT_BR = {
                 editModalTitle: 'Editar perfil',
                 addModalPlaceholder: 'Nome do perfil',
                 deleteModalTitle: 'Excluir {name}',
-                deleteModalMessage: 'Remover {name}? Os filtros de pastas, tags e notas ocultas salvos neste perfil serão excluídos.',
+                deleteModalMessage:
+                    'Remover {name}? Os filtros de arquivos, pastas, tags e notas ocultas salvos neste perfil serão excluídos.',
                 moveUp: 'Mover para cima',
                 moveDown: 'Mover para baixo',
                 errors: {
@@ -1204,9 +1251,9 @@ export const STRINGS_PT_BR = {
                 noticeError: 'Falha na migração. Verifique o console para detalhes.'
             },
             frontmatterNameField: {
-                name: 'Campo de nome',
-                desc: 'Campo do frontmatter a usar como nome de exibição da nota. Deixe em branco para usar o nome do arquivo.',
-                placeholder: 'título'
+                name: 'Campos de nome',
+                desc: 'Lista de campos frontmatter separados por vírgula. O primeiro valor não vazio é usado. Usa o nome do arquivo como alternativa.',
+                placeholder: 'título, nome'
             },
             frontmatterCreatedField: {
                 name: 'Campo de timestamp de criação',

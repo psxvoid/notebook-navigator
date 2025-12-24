@@ -82,7 +82,11 @@ export const STRINGS_DE = {
         emptySearchQuery: 'Geben Sie eine Suchanfrage ein, bevor Sie sie speichern',
         emptySearchName: 'Geben Sie einen Namen ein, bevor Sie die Suche speichern',
         add: 'Zu Lesezeichen hinzufügen',
+        addNotesCount: '{count} Notizen zu Lesezeichen hinzufügen',
+        addFilesCount: '{count} Dateien zu Lesezeichen hinzufügen',
         remove: 'Aus Lesezeichen entfernen',
+        removeAll: 'Alle Lesezeichen entfernen',
+        removeAllConfirm: 'Alle Lesezeichen entfernen?',
         folderNotesPinned: '{count} Ordnernotizen angeheftet'
     },
 
@@ -185,6 +189,7 @@ export const STRINGS_DE = {
             copyPath: 'Dateisystempfad kopieren',
             copyRelativePath: 'Vault-Pfad kopieren',
             createFolderNote: 'Ordnernotiz erstellen',
+            detachFolderNote: 'Ordnernotiz lösen',
             deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',
             changeColor: 'Farbe ändern',
@@ -402,6 +407,7 @@ export const STRINGS_DE = {
             folderAlreadyExists: 'Ordner "{name}" existiert bereits',
             folderNotesDisabled: 'Aktivieren Sie Ordnernotizen in den Einstellungen, um Dateien zu konvertieren',
             folderNoteAlreadyLinked: 'Diese Datei fungiert bereits als Ordnernotiz',
+            folderNoteNotFound: 'Keine Ordnernotiz im ausgewählten Ordner',
             folderNoteUnsupportedExtension: 'Nicht unterstützte Dateierweiterung: {extension}',
             folderNoteMoveFailed: 'Datei konnte während der Konvertierung nicht verschoben werden: {error}',
             folderNoteRenameConflict: 'Eine Datei namens "{name}" existiert bereits im Ordner',
@@ -517,6 +523,8 @@ export const STRINGS_DE = {
         selectNextFile: 'Nächste Datei auswählen', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Vorherige Datei auswählen', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'In Ordnernotiz konvertieren', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Als Ordnernotiz festlegen', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Ordnernotiz lösen', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Alle Ordnernotizen anheften', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -593,7 +601,13 @@ export const STRINGS_DE = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Darstellung',
+                icon: 'Symbol',
+                title: 'Titel',
+                previewText: 'Vorschautext',
+                featureImage: 'Hauptbild',
+                tags: 'Tags',
+                date: 'Datum',
+                parentFolder: 'Übergeordneter Ordner',
                 textTransformAdd: 'Neue Transformation hinzufügen',
                 textTransformPatternPlaceholder: 'Regulärer Ausdruck',
                 textTransformReplacementPlaceholder: 'Ersatz',
@@ -697,7 +711,27 @@ export const STRINGS_DE = {
             },
             showFileIcons: {
                 name: 'Dateisymbole anzeigen',
-                desc: 'Dateisymbole mit linksbündigem Abstand anzeigen. Deaktivierung entfernt sowohl Symbole als auch Einrückung.'
+                desc: 'Dateisymbole mit linksbündigem Abstand anzeigen. Deaktivierung entfernt sowohl Symbole als auch Einrückung. Priorität: Benutzerdefiniert > Dateiname > Dateityp > Standard.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Symbole nach Dateiname',
+                desc: 'Symbole basierend auf Text im Dateinamen zuweisen.'
+            },
+            fileNameIconMap: {
+                name: 'Dateiname-Symbol-Zuordnung',
+                desc: 'Dateien mit dem Text erhalten das angegebene Symbol. Eine Zuordnung pro Zeile: Text=Symbol',
+                placeholder: '# Text=icon\nbesprechung=calendar\nrechnung=receipt',
+                resetTooltip: 'Standardwerte wiederherstellen'
+            },
+            showCategoryIcons: {
+                name: 'Symbole nach Dateityp',
+                desc: 'Symbole basierend auf der Dateierweiterung zuweisen.'
+            },
+            fileTypeIconMap: {
+                name: 'Dateityp-Symbol-Zuordnung',
+                desc: 'Dateien mit der Erweiterung erhalten das angegebene Symbol. Eine Zuordnung pro Zeile: Erweiterung=Symbol',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Standardwerte wiederherstellen'
             },
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',
@@ -787,6 +821,18 @@ export const STRINGS_DE = {
                 name: 'Bei Auswahl erweitern',
                 desc: 'Ordner und Tags bei Auswahl erweitern. Im Einzelfenster-Modus: erste Auswahl erweitert, zweite Auswahl zeigt Dateien.'
             },
+            springLoadedFolders: {
+                name: 'Beim Ziehen erweitern (nur Desktop)',
+                desc: 'Ordner und Tags beim Überfahren während des Ziehens erweitern.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Verzögerung beim ersten Erweitern',
+                desc: 'Verzögerung, bevor der erste Ordner oder Tag während eines Ziehvorgangs erweitert wird (Sekunden).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Verzögerung bei weiteren Erweiterungen',
+                desc: 'Verzögerung, bevor weitere Ordner oder Tags während desselben Ziehvorgangs erweitert werden (Sekunden).'
+            },
             navigationBanner: {
                 name: 'Navigationsbanner (Tresorprofil)',
                 desc: 'Bild oberhalb des Navigationsbereichs anzeigen. Ändert sich mit dem ausgewählten Tresorprofil.',
@@ -867,7 +913,7 @@ export const STRINGS_DE = {
             },
             vaultProfiles: {
                 name: 'Tresorprofil',
-                desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Ordner, versteckte Tags, versteckte Notizen, Verknüpfungen und Navigationsbanner. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
+                desc: 'Profile speichern Dateityp-Sichtbarkeit, versteckte Dateien, versteckte Ordner, versteckte Tags, versteckte Notizen, Verknüpfungen und Navigationsbanner. Profile können über die Kopfzeile des Navigationsbereichs gewechselt werden.',
                 defaultName: 'Standard',
                 addButton: 'Profil hinzufügen',
                 editProfilesButton: 'Profile bearbeiten',
@@ -880,7 +926,7 @@ export const STRINGS_DE = {
                 editModalTitle: 'Profil bearbeiten',
                 addModalPlaceholder: 'Profilname',
                 deleteModalTitle: '{name} löschen',
-                deleteModalMessage: '{name} entfernen? Versteckte Ordner-, Tag- und Notizfilter in diesem Profil werden gelöscht.',
+                deleteModalMessage: '{name} entfernen? Versteckte Datei-, Ordner-, Tag- und Notizfilter in diesem Profil werden gelöscht.',
                 moveUp: 'Nach oben',
                 moveDown: 'Nach unten',
                 errors: {
@@ -1222,9 +1268,9 @@ export const STRINGS_DE = {
                 desc: 'Frontmatter für Notizname, Zeitstempel, Icons und Farben verwenden'
             },
             frontmatterNameField: {
-                name: 'Namensfeld',
-                desc: 'Frontmatter-Feld für den angezeigten Notiznamen. Leer lassen, um den Dateinamen zu verwenden.',
-                placeholder: 'titel'
+                name: 'Namensfelder',
+                desc: 'Kommagetrennte Liste von Frontmatter-Feldern. Erster nicht-leerer Wert wird verwendet. Fällt auf Dateinamen zurück.',
+                placeholder: 'titel, name'
             },
             frontmatterIconField: {
                 name: 'Icon-Feld',

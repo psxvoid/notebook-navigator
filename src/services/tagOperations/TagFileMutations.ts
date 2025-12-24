@@ -24,8 +24,10 @@ import { hasValidTagCharacters, INLINE_TAG_BOUNDARY_PATTERN, INLINE_TAG_VALUE_PA
 import { mutateFrontmatterTagFields } from '../tagRename/frontmatterTagMutator';
 import { mergeRanges, NumericRange } from '../../utils/arrayUtils';
 import { findFencedCodeBlockRanges, findInlineCodeRanges, isIndexInRanges } from '../../utils/codeRangeUtils';
-import { getActiveTags } from './TagPropsAdapter';
+import { parseCommaSeparatedList } from '../../utils/commaSeparatedListUtils';
 import { createMainTagPredicate, getActiveMainTagFrontmatterProp, isDefaultTagActive, TAGS_FRONTMATTER_FIELD } from '../../utils/vaultProfiles';
+
+import { getActiveTags } from './TagPropsAdapter';
 import { EMPTY_ARRAY } from '../../utils/empty';
 
 /**
@@ -145,11 +147,7 @@ export class TagFileMutations {
                 }
 
                 if (typeof rawTags === 'string') {
-                    const tags = rawTags
-                        .split(',')
-                        .map((value: string) => value.trim())
-                        // Filter out empty strings and ensure type safety
-                        .filter((value): value is string => value.length > 0);
+                    const tags = parseCommaSeparatedList(rawTags);
                     tags.push(tag);
                     frontmatter[fmTagsProp] = Array.from(new Set(tags));
                     return;

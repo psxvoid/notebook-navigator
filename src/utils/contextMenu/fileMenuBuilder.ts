@@ -22,9 +22,11 @@ import { strings } from '../../i18n';
 import { getInternalPlugin } from '../../utils/typeGuards';
 import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
 import { ItemType, NavigatorContext } from '../../types';
+import { ShortcutType } from '../../types/shortcuts';
 import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
+import type { ShortcutsContextValue } from '../../context/ShortcutsContext';
 import { NotebookNavigatorSettings } from '../../settings';
 import { CommandQueueService } from '../../services/CommandQueueService';
 import { setAsyncOnClick } from './menuAsyncHelpers';
@@ -77,12 +79,13 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
               .map(path => app.vault.getFileByPath(path))
               .filter((f): f is TFile => !!f)
         : [];
+    const selectedFilesCount = cachedSelectedFiles.length;
 
     // Open options - show for single or multiple selection
     if (!shouldShowMultiOptions) {
         addSingleFileOpenOptions(menu, file, app, isMobile, commandQueue);
     } else {
-        addMultipleFilesOpenOptions(menu, selectedCount, selectionState, app, isMobile, cachedSelectedFiles, commandQueue);
+        addMultipleFilesOpenOptions(menu, cachedSelectedFiles, app, isMobile, commandQueue);
     }
 
     menu.addSeparator();
@@ -257,8 +260,12 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
     // Pin/Unpin for multiple files
     if (shouldShowMultiOptions) {
+        if (services.shortcuts) {
+            addMultipleFilesShortcutOption(menu, cachedSelectedFiles, selectionState, app, services.shortcuts);
+        }
+
         const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
-        addMultipleFilesPinOption(menu, selectedCount, selectionState, app, metadataService, pinContext);
+        addMultipleFilesPinOption(menu, cachedSelectedFiles, metadataService, pinContext);
 
         menu.addSeparator();
 
@@ -270,8 +277,8 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 item
                     .setTitle(
                         allMarkdownForMove
-                            ? strings.contextMenu.file.moveMultipleNotesToFolder.replace('{count}', selectedCount.toString())
-                            : strings.contextMenu.file.moveMultipleFilesToFolder.replace('{count}', selectedCount.toString())
+                            ? strings.contextMenu.file.moveMultipleNotesToFolder.replace('{count}', selectedFilesCount.toString())
+                            : strings.contextMenu.file.moveMultipleFilesToFolder.replace('{count}', selectedFilesCount.toString())
                     )
                     .setIcon('lucide-folder-input'),
                 async () => {
@@ -290,19 +297,10 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         });
 
         // Duplicate note(s)
-        addMultipleFilesDuplicateOption(menu, selectedCount, selectionState, app, fileSystemOps);
+        addMultipleFilesDuplicateOption(menu, cachedSelectedFiles, selectionState, app, fileSystemOps);
 
         // Delete note(s)
-        addMultipleFilesDeleteOption(
-            menu,
-            selectedCount,
-            selectionState,
-            settings,
-            fileSystemOps,
-            selectionDispatch,
-            cachedFileList,
-            cachedSelectedFiles
-        );
+        addMultipleFilesDeleteOption(menu, cachedSelectedFiles, selectionState, settings, fileSystemOps, selectionDispatch, cachedFileList);
     }
 
     // Copy actions - single selection only
@@ -464,19 +462,12 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
  */
 function addMultipleFilesOpenOptions(
     menu: Menu,
-    selectedCount: number,
-    selectionState: SelectionState,
+    selectedFiles: TFile[],
     app: App,
     isMobile: boolean,
-    cachedSelectedFiles?: TFile[],
     commandQueue?: CommandQueueService | null
 ): void {
-    // Use cached files if provided, otherwise convert paths to files
-    const selectedFiles =
-        cachedSelectedFiles ||
-        Array.from(selectionState.selectedFiles)
-            .map(path => app.vault.getFileByPath(path))
-            .filter((f): f is TFile => !!f);
+    const selectedCount = selectedFiles.length;
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
 
     menu.addItem((item: MenuItem) => {
@@ -579,27 +570,54 @@ function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: Metada
 }
 
 /**
- * Add pin option for multiple files
+ * Add shortcuts option for multiple files
  */
-function addMultipleFilesPinOption(
+function addMultipleFilesShortcutOption(
     menu: Menu,
-    selectedCount: number,
+    selectedFiles: TFile[],
     selectionState: SelectionState,
     app: App,
-    metadataService: MetadataService,
-    context: NavigatorContext
+    shortcuts: ShortcutsContextValue
 ): void {
-    // Check if any selected files are unpinned
-    const selectedFiles = Array.from(selectionState.selectedFiles)
-        .map(path => app.vault.getFileByPath(path))
-        .filter((f): f is TFile => !!f);
+    if (selectedFiles.length === 0) {
+        return;
+    }
 
+    const allMarkdown = selectedFiles.every(file => file.extension === 'md');
+    const labelTemplate = allMarkdown ? strings.shortcuts.addNotesCount : strings.shortcuts.addFilesCount;
+    const label = labelTemplate.replace('{count}', selectedFiles.length.toString());
+
+    menu.addItem((item: MenuItem) => {
+        setAsyncOnClick(item.setTitle(label).setIcon('lucide-bookmark'), async () => {
+            // Re-resolve files from selection state to get current paths
+            const currentFiles = Array.from(selectionState.selectedFiles)
+                .map(path => app.vault.getFileByPath(path))
+                .filter((f): f is TFile => !!f);
+            if (currentFiles.length === 0) {
+                return;
+            }
+
+            const entries = currentFiles.map(selectedFile => ({
+                type: ShortcutType.NOTE,
+                path: selectedFile.path
+            }));
+
+            await shortcuts.addShortcutsBatch(entries);
+        });
+    });
+}
+
+/**
+ * Add pin option for multiple files
+ */
+function addMultipleFilesPinOption(menu: Menu, selectedFiles: TFile[], metadataService: MetadataService, context: NavigatorContext): void {
     const anyUnpinned = selectedFiles.some(f => {
         return !metadataService.isFilePinned(f.path, context);
     });
 
     // Check if all files are markdown
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
+    const selectedCount = selectedFiles.length;
 
     menu.addItem((item: MenuItem) => {
         setAsyncOnClick(
@@ -652,16 +670,14 @@ function addSingleFileDuplicateOption(menu: Menu, file: TFile, fileSystemOps: Fi
  */
 function addMultipleFilesDuplicateOption(
     menu: Menu,
-    selectedCount: number,
+    selectedFiles: TFile[],
     selectionState: SelectionState,
     app: App,
     fileSystemOps: FileSystemOperations
 ): void {
     // Check if all files are markdown
-    const selectedFiles = Array.from(selectionState.selectedFiles)
-        .map(path => app.vault.getFileByPath(path))
-        .filter((f): f is TFile => !!f);
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
+    const selectedCount = selectedFiles.length;
 
     menu.addItem((item: MenuItem) => {
         setAsyncOnClick(
@@ -731,17 +747,15 @@ function addSingleFileDeleteOption(
  */
 function addMultipleFilesDeleteOption(
     menu: Menu,
-    selectedCount: number,
+    selectedFiles: TFile[],
     selectionState: SelectionState,
     settings: NotebookNavigatorSettings,
     fileSystemOps: FileSystemOperations,
     selectionDispatch: React.Dispatch<SelectionAction>,
-    cachedFileList: TFile[],
-    cachedSelectedFiles: TFile[]
+    cachedFileList: TFile[]
 ): void {
-    // Use cached files
-    const selectedFiles = cachedSelectedFiles;
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
+    const selectedCount = selectedFiles.length;
 
     menu.addItem((item: MenuItem) => {
         setAsyncOnClick(

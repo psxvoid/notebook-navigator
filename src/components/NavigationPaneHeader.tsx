@@ -171,7 +171,7 @@ export function NavigationPaneHeader({
                 <div className="nn-header-actions">
                     {showShortcutsButton ? (
                         <button
-                            className="nn-icon-button"
+                            className={`nn-icon-button ${uiState.pinShortcuts ? 'nn-icon-button-active' : ''}`}
                             aria-label={
                                 pinToggleLabel ??
                                 (uiState.pinShortcuts ? strings.navigationPane.unpinShortcuts : strings.navigationPane.pinShortcuts)
@@ -183,7 +183,7 @@ export function NavigationPaneHeader({
                             }}
                             tabIndex={-1}
                         >
-                            <ObsidianIcon name={uiState.pinShortcuts ? 'lucide-bookmark-minus' : 'lucide-bookmark'} />
+                            <ObsidianIcon name="lucide-bookmark" />
                         </button>
                     ) : null}
                     {showExpandCollapseButton ? (

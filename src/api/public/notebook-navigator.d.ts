@@ -1,6 +1,6 @@
 /**
  * Notebook Navigator Plugin API Type Definitions
- * Version: 1.0.1
+ * Version: 1.1.0
  *
  * Download this file to your Obsidian plugin project to get TypeScript support
  * for the Notebook Navigator API.
@@ -148,7 +148,7 @@ export interface NotebookNavigatorEvents {
 
 /**
  * Main Notebook Navigator API interface
- * @version 1.0.1
+ * @version 1.1.0
  */
 export interface NotebookNavigatorAPI {
     /** Get the API version string */
@@ -186,6 +186,10 @@ export interface NotebookNavigatorAPI {
     navigation: {
         /** Reveal and select a file in the navigator */
         reveal(file: TFile): Promise<void>;
+        /** Select a folder in the navigator navigation pane */
+        navigateToFolder(folder: TFolder): Promise<void>;
+        /** Select a tag in the navigator navigation pane (e.g. '#work' or 'work'). Requires tag data to be available (`storage-ready`). */
+        navigateToTag(tag: string): Promise<void>;
     };
 
     /** Query current selection state */
@@ -207,6 +211,10 @@ export interface NotebookNavigatorAPI {
 
 /**
  * API Changelog
+ *
+ * Version 1.1.0 (2025-12-22)
+ * - Added navigation.navigateToFolder(folder)
+ * - Added navigation.navigateToTag(tag)
  *
  * Version 1.0.1 (2025-09-16)
  * - Added backgroundColor property to FolderMetadata and TagMetadata interfaces

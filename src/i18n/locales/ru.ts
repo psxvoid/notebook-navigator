@@ -83,7 +83,11 @@ export const STRINGS_RU = {
         emptySearchQuery: 'Введите поисковый запрос перед сохранением',
         emptySearchName: 'Введите название перед сохранением поиска',
         add: 'Добавить в ярлыки',
+        addNotesCount: 'Добавить {count} заметок в ярлыки',
+        addFilesCount: 'Добавить {count} файлов в ярлыки',
         remove: 'Убрать из ярлыков',
+        removeAll: 'Удалить все ярлыки',
+        removeAllConfirm: 'Удалить все ярлыки?',
         folderNotesPinned: 'Закреплено заметок папок: {count}'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_RU = {
             copyPath: 'Копировать путь в файловой системе',
             copyRelativePath: 'Копировать путь в хранилище',
             createFolderNote: 'Создать заметку папки',
+            detachFolderNote: 'Отвязать заметку папки',
             deleteFolderNote: 'Удалить заметку папки',
             changeIcon: 'Изменить иконку',
             changeColor: 'Изменить цвет',
@@ -399,6 +404,7 @@ export const STRINGS_RU = {
             folderAlreadyExists: 'Папка "{name}" уже существует',
             folderNotesDisabled: 'Включите заметки папок в настройках для конвертации файлов',
             folderNoteAlreadyLinked: 'Этот файл уже является заметкой папки',
+            folderNoteNotFound: 'В выбранной папке нет заметки папки',
             folderNoteUnsupportedExtension: 'Неподдерживаемое расширение файла: {extension}',
             folderNoteMoveFailed: 'Не удалось переместить файл при конвертации: {error}',
             folderNoteRenameConflict: 'Файл с именем "{name}" уже существует в папке',
@@ -514,6 +520,8 @@ export const STRINGS_RU = {
         selectNextFile: 'Выбрать следующий файл', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Выбрать предыдущий файл', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Конвертировать в заметку папки', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Назначить заметкой папки', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Отвязать заметку папки', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Закрепить все заметки папок', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Перейти к папке', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Перейти к тегу', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -590,7 +598,13 @@ export const STRINGS_RU = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Внешний вид',
+                icon: 'Иконка',
+                title: 'Заголовок',
+                previewText: 'Текст превью',
+                featureImage: 'Изображение записи',
+                tags: 'Теги',
+                date: 'Дата',
+                parentFolder: 'Родительская папка',
                 textTransformAdd: 'Добавить новое преобразование',
                 textTransformPatternPlaceholder: 'Регулярное выражение',
                 textTransformReplacementPlaceholder: 'Замена',
@@ -694,7 +708,27 @@ export const STRINGS_RU = {
             },
             showFileIcons: {
                 name: 'Показывать иконки файлов',
-                desc: 'Отображать иконки файлов с выравниванием по левому краю. Отключение убирает и иконки, и отступы.'
+                desc: 'Отображать иконки файлов с выравниванием по левому краю. Отключение убирает и иконки, и отступы. Приоритет: пользовательские > имя файла > тип файла > по умолчанию.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Иконки по имени файла',
+                desc: 'Назначить иконки файлам на основе текста в их именах.'
+            },
+            fileNameIconMap: {
+                name: 'Сопоставление имён и иконок',
+                desc: 'Файлы, содержащие текст, получают указанную иконку. Одно сопоставление на строку: текст=иконка',
+                placeholder: '# текст=иконка\nвстреча=calendar\nсчёт=receipt',
+                resetTooltip: 'Восстановить значения по умолчанию'
+            },
+            showCategoryIcons: {
+                name: 'Иконки по типу файла',
+                desc: 'Назначить иконки файлам на основе их расширения.'
+            },
+            fileTypeIconMap: {
+                name: 'Сопоставление типов и иконок',
+                desc: 'Файлы с расширением получают указанную иконку. Одно сопоставление на строку: расширение=иконка',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Восстановить значения по умолчанию'
             },
             optimizeNoteHeight: {
                 name: 'Оптимизировать высоту заметок',
@@ -783,6 +817,18 @@ export const STRINGS_RU = {
             autoExpandFoldersTags: {
                 name: 'Разворачивать при выборе',
                 desc: 'Разворачивать папки и теги при выборе. В однопанельном режиме первый выбор разворачивает, второй показывает файлы.'
+            },
+            springLoadedFolders: {
+                name: 'Разворачивать при перетаскивании (только компьютер)',
+                desc: 'Разворачивать папки и теги при наведении во время перетаскивания.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Задержка первого разворачивания',
+                desc: 'Задержка перед разворачиванием первой папки или тега во время перетаскивания (секунды).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Задержка последующих разворачиваний',
+                desc: 'Задержка перед разворачиванием дополнительных папок или тегов во время того же перетаскивания (секунды).'
             },
             navigationBanner: {
                 name: 'Баннер навигации (профиль хранилища)',
@@ -885,7 +931,7 @@ export const STRINGS_RU = {
             },
             vaultProfiles: {
                 name: 'Профиль хранилища',
-                desc: 'Профили хранят видимость типов файлов, скрытые папки, скрытые теги, скрытые заметки, ярлыки и баннер навигации. Переключайте профили из заголовка панели навигации.',
+                desc: 'Профили хранят видимость типов файлов, скрытые файлы, скрытые папки, скрытые теги, скрытые заметки, ярлыки и баннер навигации. Переключайте профили из заголовка панели навигации.',
                 defaultName: 'По умолчанию',
                 addButton: 'Добавить профиль',
                 editProfilesButton: 'Редактировать профили',
@@ -898,7 +944,8 @@ export const STRINGS_RU = {
                 editModalTitle: 'Редактировать профиль',
                 addModalPlaceholder: 'Название профиля',
                 deleteModalTitle: 'Удалить {name}',
-                deleteModalMessage: 'Удалить {name}? Фильтры скрытых папок, тегов и заметок, сохранённые в этом профиле, будут удалены.',
+                deleteModalMessage:
+                    'Удалить {name}? Фильтры скрытых файлов, папок, тегов и заметок, сохранённые в этом профиле, будут удалены.',
                 moveUp: 'Переместить вверх',
                 moveDown: 'Переместить вниз',
                 errors: {
@@ -1244,9 +1291,9 @@ export const STRINGS_RU = {
                 noticeError: 'Миграция не удалась. Проверьте консоль для деталей.'
             },
             frontmatterNameField: {
-                name: 'Поле названия',
-                desc: 'Поле frontmatter для отображаемого названия заметки. Оставьте пустым для использования имени файла.',
-                placeholder: 'title'
+                name: 'Поля названия',
+                desc: 'Список полей frontmatter через запятую. Используется первое непустое значение. Возвращается к имени файла.',
+                placeholder: 'заголовок, название'
             },
             frontmatterCreatedField: {
                 name: 'Поле даты создания',

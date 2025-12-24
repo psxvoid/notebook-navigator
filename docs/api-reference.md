@@ -3,7 +3,7 @@
 The Notebook Navigator plugin exposes a public API that allows other plugins and scripts to interact with its features
 programmatically.
 
-**Current Version:** 1.0.1
+**Current Version:** 1.1.0
 
 ## Table of Contents
 
@@ -173,9 +173,11 @@ for (const [path, context] of pinned) {
 
 ## Navigation API
 
-| Method         | Description                         | Returns         |
-| -------------- | ----------------------------------- | --------------- |
-| `reveal(file)` | Reveal and select file in navigator | `Promise<void>` |
+| Method                     | Description                            | Returns         |
+| -------------------------- | -------------------------------------- | --------------- |
+| `reveal(file)`             | Reveal and select file in navigator    | `Promise<void>` |
+| `navigateToFolder(folder)` | Select a folder in the navigation pane | `Promise<void>` |
+| `navigateToTag(tag)`       | Select a tag in the navigation pane    | `Promise<void>` |
 
 ### Reveal Behavior
 
@@ -194,6 +196,33 @@ if (activeFile) {
   await nn.navigation.reveal(activeFile);
   // File is now selected in its parent folder
 }
+```
+
+### Folder Navigation Behavior
+
+When calling `navigateToFolder(folder)`:
+
+- Selects the folder in the navigation pane
+- Expands parent folders to make the folder visible
+- Preserves navigation focus in single-pane mode
+
+### Tag Navigation Behavior
+
+When calling `navigateToTag(tag)`:
+
+- Accepts both `'work'` and `'#work'` formats
+- Requires tag data to be available (`storage-ready`)
+- Expands the tags root when "All tags" is enabled and collapsed
+- Expands parent tags for hierarchical tags (e.g. `'parent/child'`)
+- Preserves navigation focus in single-pane mode
+
+```typescript
+// Wait for storage if needed, then navigate
+if (!nn.isStorageReady()) {
+  await new Promise<void>(resolve => nn.once('storage-ready', resolve));
+}
+
+await nn.navigation.navigateToTag('#work');
 ```
 
 ## Selection API

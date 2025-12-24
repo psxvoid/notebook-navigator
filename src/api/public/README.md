@@ -29,7 +29,7 @@ Complete TypeScript type definitions for the Notebook Navigator API.
 
 ## Version
 
-Current API Version: **1.0.0**
+Current API Version: **1.1.0**
 
 ## Documentation
 

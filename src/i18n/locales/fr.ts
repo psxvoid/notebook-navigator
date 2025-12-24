@@ -82,7 +82,11 @@ export const STRINGS_FR = {
         emptySearchQuery: "Entrez une requête de recherche avant de l'enregistrer",
         emptySearchName: "Entrez un nom avant d'enregistrer la recherche",
         add: 'Ajouter aux raccourcis',
+        addNotesCount: 'Ajouter {count} notes aux raccourcis',
+        addFilesCount: 'Ajouter {count} fichiers aux raccourcis',
         remove: 'Retirer des raccourcis',
+        removeAll: 'Supprimer tous les raccourcis',
+        removeAllConfirm: 'Supprimer tous les raccourcis ?',
         folderNotesPinned: '{count} notes de dossier épinglées'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_FR = {
             copyPath: 'Copier le chemin du système de fichiers',
             copyRelativePath: 'Copier le chemin du coffre',
             createFolderNote: 'Créer une note de dossier',
+            detachFolderNote: 'Détacher la note de dossier',
             deleteFolderNote: 'Supprimer la note de dossier',
             changeIcon: "Changer l'icône",
             changeColor: 'Changer la couleur',
@@ -400,6 +405,7 @@ export const STRINGS_FR = {
             folderAlreadyExists: 'Le dossier "{name}" existe déjà',
             folderNotesDisabled: 'Activez les notes de dossier dans les paramètres pour convertir des fichiers',
             folderNoteAlreadyLinked: 'Ce fichier agit déjà comme une note de dossier',
+            folderNoteNotFound: 'Aucune note de dossier dans le dossier sélectionné',
             folderNoteUnsupportedExtension: 'Extension de fichier non prise en charge : {extension}',
             folderNoteMoveFailed: 'Échec du déplacement du fichier pendant la conversion : {error}',
             folderNoteRenameConflict: 'Un fichier nommé "{name}" existe déjà dans le dossier',
@@ -515,6 +521,8 @@ export const STRINGS_FR = {
         selectNextFile: 'Sélectionner le fichier suivant', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: 'Sélectionner le fichier précédent', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: 'Convertir en note de dossier', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: 'Définir comme note de dossier', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: 'Détacher la note de dossier', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: 'Épingler toutes les notes de dossier', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -591,7 +599,13 @@ export const STRINGS_FR = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Apparence',
+                icon: 'Icône',
+                title: 'Titre',
+                previewText: "Texte d'aperçu",
+                featureImage: 'Image vedette',
+                tags: 'Étiquettes',
+                date: 'Date',
+                parentFolder: 'Dossier parent',
                 textTransformAdd: 'Ajouter une nouvelle transformation',
                 textTransformPatternPlaceholder: 'Expression régulière',
                 textTransformReplacementPlaceholder: 'Remplacement',
@@ -695,7 +709,27 @@ export const STRINGS_FR = {
             },
             showFileIcons: {
                 name: 'Afficher les icônes de fichier',
-                desc: "Afficher les icônes de fichier avec espacement aligné à gauche. La désactivation supprime les icônes et l'indentation."
+                desc: "Afficher les icônes de fichier avec espacement aligné à gauche. La désactivation supprime les icônes et l'indentation. Priorité : personnalisé > nom de fichier > type de fichier > par défaut."
+            },
+            showFilenameMatchIcons: {
+                name: 'Icônes par nom de fichier',
+                desc: 'Attribuer des icônes aux fichiers selon le texte dans leurs noms.'
+            },
+            fileNameIconMap: {
+                name: 'Correspondance nom-icône',
+                desc: "Les fichiers contenant le texte obtiennent l'icône spécifiée. Une correspondance par ligne : texte=icône",
+                placeholder: '# texte=icône\nréunion=calendar\nfacture=receipt',
+                resetTooltip: 'Restaurer les valeurs par défaut'
+            },
+            showCategoryIcons: {
+                name: 'Icônes par type de fichier',
+                desc: 'Attribuer des icônes aux fichiers selon leur extension.'
+            },
+            fileTypeIconMap: {
+                name: 'Correspondance type-icône',
+                desc: "Les fichiers avec l'extension obtiennent l'icône spécifiée. Une correspondance par ligne : extension=icône",
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Restaurer les valeurs par défaut'
             },
             optimizeNoteHeight: {
                 name: 'Optimiser la hauteur des notes',
@@ -785,6 +819,18 @@ export const STRINGS_FR = {
                 name: 'Développer à la sélection',
                 desc: 'Développer les dossiers et étiquettes lors de la sélection. En mode panneau unique, la première sélection développe, la seconde affiche les fichiers.'
             },
+            springLoadedFolders: {
+                name: 'Développer au survol (ordinateur uniquement)',
+                desc: 'Développer les dossiers et les étiquettes au survol pendant le glisser-déposer.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Délai de première expansion',
+                desc: 'Délai avant que le premier dossier ou étiquette se développe pendant un glisser-déposer (secondes).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: "Délai d'expansion suivante",
+                desc: "Délai avant de développer d'autres dossiers ou étiquettes pendant le même glisser-déposer (secondes)."
+            },
             navigationBanner: {
                 name: 'Bannière de navigation (profil de coffre)',
                 desc: 'Afficher une image au-dessus du panneau de navigation. Change avec le profil de coffre sélectionné.',
@@ -865,7 +911,7 @@ export const STRINGS_FR = {
             },
             vaultProfiles: {
                 name: 'Profil du coffre',
-                desc: "Les profils stockent la visibilité des types de fichiers, les dossiers cachés, les étiquettes cachées, les notes cachées, les raccourcis et la bannière de navigation. Changez de profil depuis l'en-tête du panneau de navigation.",
+                desc: "Les profils stockent la visibilité des types de fichiers, les fichiers cachés, les dossiers cachés, les étiquettes cachées, les notes cachées, les raccourcis et la bannière de navigation. Changez de profil depuis l'en-tête du panneau de navigation.",
                 defaultName: 'Par défaut',
                 addButton: 'Ajouter un profil',
                 editProfilesButton: 'Modifier les profils',
@@ -879,7 +925,7 @@ export const STRINGS_FR = {
                 addModalPlaceholder: 'Nom du profil',
                 deleteModalTitle: 'Supprimer {name}',
                 deleteModalMessage:
-                    'Supprimer {name} ? Les filtres de dossiers, étiquettes et notes cachés enregistrés dans ce profil seront supprimés.',
+                    'Supprimer {name} ? Les filtres de fichiers, dossiers, étiquettes et notes cachés enregistrés dans ce profil seront supprimés.',
                 moveUp: 'Déplacer vers le haut',
                 moveDown: 'Déplacer vers le bas',
                 errors: {
@@ -1223,9 +1269,9 @@ export const STRINGS_FR = {
                 desc: 'Utiliser le frontmatter pour le nom de note, horodatages, icônes et couleurs'
             },
             frontmatterNameField: {
-                name: 'Champ de nom',
-                desc: "Champ frontmatter à utiliser comme nom d'affichage de la note. Laisser vide pour utiliser le nom du fichier.",
-                placeholder: 'titre'
+                name: 'Champs de nom',
+                desc: 'Liste de champs frontmatter séparés par des virgules. La première valeur non vide est utilisée. Retombe sur le nom du fichier.',
+                placeholder: 'titre, nom'
             },
             frontmatterIconField: {
                 name: "Champ d'icône",

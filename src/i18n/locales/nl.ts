@@ -83,7 +83,11 @@ export const STRINGS_NL = {
         emptySearchQuery: 'Voer een zoekopdracht in voordat u deze opslaat',
         emptySearchName: 'Voer een naam in voordat u de zoekopdracht opslaat',
         add: 'Toevoegen aan snelkoppelingen',
+        addNotesCount: 'Voeg {count} notities toe aan snelkoppelingen',
+        addFilesCount: 'Voeg {count} bestanden toe aan snelkoppelingen',
         remove: 'Verwijderen uit snelkoppelingen',
+        removeAll: 'Alle snelkoppelingen verwijderen',
+        removeAllConfirm: 'Alle snelkoppelingen verwijderen?',
         folderNotesPinned: '{count} mapnotities vastgepind'
     },
 
@@ -184,6 +188,7 @@ export const STRINGS_NL = {
             copyPath: 'Bestandssysteempad kopiëren',
             copyRelativePath: 'Vault-pad kopiëren',
             createFolderNote: 'Mapnotitie maken',
+            detachFolderNote: 'Mapnotitie loskoppelen',
             deleteFolderNote: 'Mapnotitie verwijderen',
             changeIcon: 'Pictogram wijzigen',
             changeColor: 'Kleur wijzigen',
@@ -401,6 +406,7 @@ export const STRINGS_NL = {
             folderAlreadyExists: 'Map "{name}" bestaat al',
             folderNotesDisabled: 'Schakel mapnotities in via instellingen om bestanden te converteren',
             folderNoteAlreadyLinked: 'Dit bestand fungeert al als mapnotitie',
+            folderNoteNotFound: 'Geen mapnotitie in de geselecteerde map',
             folderNoteUnsupportedExtension: 'Niet-ondersteunde bestandsextensie: {extension}',
             folderNoteMoveFailed: 'Kan bestand niet verplaatsen tijdens conversie: {error}',
             folderNoteRenameConflict: 'Een bestand met de naam "{name}" bestaat al in de map',
@@ -516,6 +522,8 @@ export const STRINGS_NL = {
         selectNextFile: 'Volgend bestand selecteren',
         selectPreviousFile: 'Vorig bestand selecteren',
         convertToFolderNote: 'Converteren naar mapnotitie',
+        setAsFolderNote: 'Als mapnotitie instellen',
+        detachFolderNote: 'Mapnotitie loskoppelen',
         pinAllFolderNotes: 'Alle mapnotities vastpinnen',
         navigateToFolder: 'Navigeren naar map',
         navigateToTag: 'Navigeren naar tag',
@@ -592,7 +600,13 @@ export const STRINGS_NL = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Uiterlijk',
+                icon: 'Icoon',
+                title: 'Titel',
+                previewText: 'Voorbeeldtekst',
+                featureImage: 'Uitgelichte afbeelding',
+                tags: 'Tags',
+                date: 'Datum',
+                parentFolder: 'Bovenliggende map',
                 textTransformAdd: 'Nieuwe transformatie toevoegen',
                 textTransformPatternPlaceholder: 'Reguliere expressie',
                 textTransformReplacementPlaceholder: 'Vervanging',
@@ -695,7 +709,27 @@ export const STRINGS_NL = {
             },
             showFileIcons: {
                 name: 'Bestandspictogrammen tonen',
-                desc: 'Bestandspictogrammen tonen met links uitgelijnde ruimte. Uitschakelen verwijdert zowel pictogrammen als inspringing.'
+                desc: 'Bestandspictogrammen tonen met links uitgelijnde ruimte. Uitschakelen verwijdert zowel pictogrammen als inspringing. Prioriteit: aangepast > bestandsnaam > bestandstype > standaard.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Pictogrammen op bestandsnaam',
+                desc: 'Pictogrammen toewijzen aan bestanden op basis van tekst in hun namen.'
+            },
+            fileNameIconMap: {
+                name: 'Bestandsnaam-pictogram toewijzing',
+                desc: 'Bestanden met de tekst krijgen het opgegeven pictogram. Eén toewijzing per regel: tekst=pictogram',
+                placeholder: '# tekst=pictogram\nvergadering=calendar\nfactuur=receipt',
+                resetTooltip: 'Standaardwaarden herstellen'
+            },
+            showCategoryIcons: {
+                name: 'Pictogrammen op bestandstype',
+                desc: 'Pictogrammen toewijzen aan bestanden op basis van hun extensie.'
+            },
+            fileTypeIconMap: {
+                name: 'Bestandstype-pictogram toewijzing',
+                desc: 'Bestanden met de extensie krijgen het opgegeven pictogram. Eén toewijzing per regel: extensie=pictogram',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Standaardwaarden herstellen'
             },
             optimizeNoteHeight: {
                 name: 'Notitiehoogte optimaliseren',
@@ -784,6 +818,18 @@ export const STRINGS_NL = {
             autoExpandFoldersTags: {
                 name: 'Uitvouwen bij selectie',
                 desc: 'Mappen en tags uitvouwen bij selectie. In enkelvoudige paneelmodus: eerste selectie vouwt uit, tweede selectie toont bestanden.'
+            },
+            springLoadedFolders: {
+                name: 'Uitvouwen bij slepen (alleen desktop)',
+                desc: 'Mappen en tags uitvouwen bij zweven tijdens slepen.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Vertraging bij eerste uitvouw',
+                desc: 'Vertraging voordat de eerste map of tag uitvouwt tijdens slepen (seconden).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Vertraging bij volgende uitvouwen',
+                desc: 'Vertraging voordat extra mappen of tags uitvouwen tijdens dezelfde sleepactie (seconden).'
             },
             navigationBanner: {
                 name: 'Navigatiebanner (kluisprofiel)',
@@ -886,7 +932,7 @@ export const STRINGS_NL = {
             },
             vaultProfiles: {
                 name: 'Kluis profiel',
-                desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen mappen, verborgen labels, verborgen notities, snelkoppelingen en navigatiebanner. Wissel van profiel via de koptekst van het navigatiepaneel.',
+                desc: 'Profielen bewaren bestandstypezichtbaarheid, verborgen bestanden, verborgen mappen, verborgen labels, verborgen notities, snelkoppelingen en navigatiebanner. Wissel van profiel via de koptekst van het navigatiepaneel.',
                 defaultName: 'Standaard',
                 addButton: 'Profiel toevoegen',
                 editProfilesButton: 'Profielen bewerken',
@@ -900,7 +946,7 @@ export const STRINGS_NL = {
                 addModalPlaceholder: 'Profielnaam',
                 deleteModalTitle: '{name} verwijderen',
                 deleteModalMessage:
-                    '{name} verwijderen? Verborgen map-, label- en notitiefilters opgeslagen in dit profiel worden verwijderd.',
+                    '{name} verwijderen? Verborgen bestands-, map-, label- en notitiefilters opgeslagen in dit profiel worden verwijderd.',
                 moveUp: 'Omhoog verplaatsen',
                 moveDown: 'Omlaag verplaatsen',
                 errors: {
@@ -1246,9 +1292,9 @@ export const STRINGS_NL = {
                 noticeError: 'Migratie mislukt. Controleer console voor details.'
             },
             frontmatterNameField: {
-                name: 'Naamveld',
-                desc: 'Frontmatter-veld om te gebruiken als weergavenaam voor de notitie. Laat leeg om de bestandsnaam te gebruiken.',
-                placeholder: 'title'
+                name: 'Naamvelden',
+                desc: 'Kommagescheiden lijst van frontmatter-velden. Eerste niet-lege waarde wordt gebruikt. Valt terug op bestandsnaam.',
+                placeholder: 'titel, naam'
             },
             frontmatterCreatedField: {
                 name: 'Aangemaakt tijdstempelveld',

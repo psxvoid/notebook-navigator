@@ -83,7 +83,11 @@ export const STRINGS_TH = {
         emptySearchQuery: 'กรอกคำค้นหาก่อนบันทึก',
         emptySearchName: 'กรอกชื่อก่อนบันทึกการค้นหา',
         add: 'เพิ่มในทางลัด',
+        addNotesCount: 'เพิ่ม {count} โน้ตไปยังทางลัด',
+        addFilesCount: 'เพิ่ม {count} ไฟล์ไปยังทางลัด',
         remove: 'นำออกจากทางลัด',
+        removeAll: 'ลบทางลัดทั้งหมด',
+        removeAllConfirm: 'ลบทางลัดทั้งหมด?',
         folderNotesPinned: 'ปักหมุด {count} โน้ตโฟลเดอร์แล้ว'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_TH = {
             copyPath: 'คัดลอกเส้นทางระบบไฟล์',
             copyRelativePath: 'คัดลอกเส้นทางห้องนิรภัย',
             createFolderNote: 'สร้างโน้ตโฟลเดอร์',
+            detachFolderNote: 'แยกโน้ตโฟลเดอร์',
             deleteFolderNote: 'ลบโน้ตโฟลเดอร์',
             changeIcon: 'เปลี่ยนไอคอน',
             changeColor: 'เปลี่ยนสี',
@@ -399,6 +404,7 @@ export const STRINGS_TH = {
             folderAlreadyExists: 'โฟลเดอร์ "{name}" มีอยู่แล้ว',
             folderNotesDisabled: 'เปิดใช้งานโน้ตโฟลเดอร์ในการตั้งค่าเพื่อแปลงไฟล์',
             folderNoteAlreadyLinked: 'ไฟล์นี้ทำหน้าที่เป็นโน้ตโฟลเดอร์อยู่แล้ว',
+            folderNoteNotFound: 'ไม่มีบันทึกโฟลเดอร์ในโฟลเดอร์ที่เลือก',
             folderNoteUnsupportedExtension: 'นามสกุลไฟล์ไม่รองรับ: {extension}',
             folderNoteMoveFailed: 'ย้ายไฟล์ระหว่างการแปลงล้มเหลว: {error}',
             folderNoteRenameConflict: 'ไฟล์ชื่อ "{name}" มีอยู่ในโฟลเดอร์แล้ว',
@@ -514,6 +520,8 @@ export const STRINGS_TH = {
         selectNextFile: 'เลือกไฟล์ถัดไป',
         selectPreviousFile: 'เลือกไฟล์ก่อนหน้า',
         convertToFolderNote: 'แปลงเป็นโน้ตโฟลเดอร์',
+        setAsFolderNote: 'ตั้งเป็นโน้ตโฟลเดอร์',
+        detachFolderNote: 'แยกโน้ตโฟลเดอร์',
         pinAllFolderNotes: 'ปักหมุดโน้ตโฟลเดอร์ทั้งหมด',
         navigateToFolder: 'นำทางไปยังโฟลเดอร์',
         navigateToTag: 'นำทางไปยังแท็ก',
@@ -590,7 +598,13 @@ export const STRINGS_TH = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'ลักษณะ',
+                icon: 'ไอคอน',
+                title: 'ชื่อเรื่อง',
+                previewText: 'ข้อความตัวอย่าง',
+                featureImage: 'รูปภาพเด่น',
+                tags: 'แท็ก',
+                date: 'วันที่',
+                parentFolder: 'โฟลเดอร์หลัก',
                 textTransformAdd: 'เพิ่มการแปลงใหม่',
                 textTransformPatternPlaceholder: 'นิพจน์ปกติ',
                 textTransformReplacementPlaceholder: 'การทดแทน',
@@ -693,7 +707,27 @@ export const STRINGS_TH = {
             },
             showFileIcons: {
                 name: 'แสดงไอคอนไฟล์',
-                desc: 'แสดงไอคอนไฟล์พร้อมระยะห่างชิดซ้าย การปิดใช้งานจะนำไอคอนและการเยื้องออก'
+                desc: 'แสดงไอคอนไฟล์พร้อมระยะห่างชิดซ้าย การปิดใช้งานจะนำไอคอนและการเยื้องออก ลำดับความสำคัญ: กำหนดเอง > ชื่อไฟล์ > ประเภทไฟล์ > ค่าเริ่มต้น'
+            },
+            showFilenameMatchIcons: {
+                name: 'ไอคอนตามชื่อไฟล์',
+                desc: 'กำหนดไอคอนให้ไฟล์ตามข้อความในชื่อ'
+            },
+            fileNameIconMap: {
+                name: 'แผนที่ไอคอนชื่อไฟล์',
+                desc: 'ไฟล์ที่มีข้อความจะได้รับไอคอนที่กำหนด หนึ่งการแมปต่อบรรทัด: ข้อความ=ไอคอน',
+                placeholder: '# ข้อความ=ไอคอน\nประชุม=calendar\nใบแจ้งหนี้=receipt',
+                resetTooltip: 'คืนค่าเริ่มต้น'
+            },
+            showCategoryIcons: {
+                name: 'ไอคอนตามประเภทไฟล์',
+                desc: 'กำหนดไอคอนให้ไฟล์ตามนามสกุล'
+            },
+            fileTypeIconMap: {
+                name: 'แผนที่ไอคอนประเภทไฟล์',
+                desc: 'ไฟล์ที่มีนามสกุลจะได้รับไอคอนที่กำหนด หนึ่งการแมปต่อบรรทัด: นามสกุล=ไอคอน',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'คืนค่าเริ่มต้น'
             },
             optimizeNoteHeight: {
                 name: 'ปรับความสูงโน้ตให้เหมาะสม',
@@ -782,6 +816,18 @@ export const STRINGS_TH = {
             autoExpandFoldersTags: {
                 name: 'ขยายเมื่อเลือก',
                 desc: 'ขยายโฟลเดอร์และแท็กเมื่อเลือก ในโหมดแผงเดียว การเลือกครั้งแรกจะขยาย การเลือกครั้งที่สองจะแสดงไฟล์'
+            },
+            springLoadedFolders: {
+                name: 'ขยายระหว่างลาก (เดสก์ท็อปเท่านั้น)',
+                desc: 'ขยายโฟลเดอร์และแท็กเมื่อวางเมาส์ระหว่างการลาก'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'หน่วงเวลาการขยายครั้งแรก',
+                desc: 'หน่วงเวลาก่อนขยายโฟลเดอร์หรือแท็กครั้งแรกระหว่างการลาก (วินาที)'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'หน่วงเวลาการขยายครั้งถัดไป',
+                desc: 'หน่วงเวลาก่อนขยายโฟลเดอร์หรือแท็กเพิ่มเติมระหว่างการลากเดียวกัน (วินาที)'
             },
             navigationBanner: {
                 name: 'แบนเนอร์นำทาง (โปรไฟล์ห้องนิรภัย)',
@@ -884,7 +930,7 @@ export const STRINGS_TH = {
             },
             vaultProfiles: {
                 name: 'โปรไฟล์ห้องนิรภัย',
-                desc: 'โปรไฟล์เก็บการมองเห็นประเภทไฟล์ โฟลเดอร์ที่ซ่อน แท็กที่ซ่อน โน้ตที่ซ่อน ทางลัด และแบนเนอร์นำทาง สลับโปรไฟล์จากส่วนหัวแผงนำทาง',
+                desc: 'โปรไฟล์เก็บการมองเห็นประเภทไฟล์ ไฟล์ที่ซ่อน โฟลเดอร์ที่ซ่อน แท็กที่ซ่อน โน้ตที่ซ่อน ทางลัด และแบนเนอร์นำทาง สลับโปรไฟล์จากส่วนหัวแผงนำทาง',
                 defaultName: 'ค่าเริ่มต้น',
                 addButton: 'เพิ่มโปรไฟล์',
                 editProfilesButton: 'แก้ไขโปรไฟล์',
@@ -897,7 +943,7 @@ export const STRINGS_TH = {
                 editModalTitle: 'แก้ไขโปรไฟล์',
                 addModalPlaceholder: 'ชื่อโปรไฟล์',
                 deleteModalTitle: 'ลบ {name}',
-                deleteModalMessage: 'ลบ {name}? ตัวกรองโฟลเดอร์ แท็ก และโน้ตที่ซ่อนที่บันทึกในโปรไฟล์นี้จะถูกลบ',
+                deleteModalMessage: 'ลบ {name}? ตัวกรองไฟล์ โฟลเดอร์ แท็ก และโน้ตที่ซ่อนที่บันทึกในโปรไฟล์นี้จะถูกลบ',
                 moveUp: 'ย้ายขึ้น',
                 moveDown: 'ย้ายลง',
                 errors: {
@@ -1242,9 +1288,9 @@ export const STRINGS_TH = {
                 noticeError: 'ย้ายล้มเหลว ตรวจสอบคอนโซลสำหรับรายละเอียด'
             },
             frontmatterNameField: {
-                name: 'ฟิลด์ชื่อ',
-                desc: 'ฟิลด์ frontmatter ที่จะใช้เป็นชื่อแสดงโน้ต เว้นว่างเพื่อใช้ชื่อไฟล์',
-                placeholder: 'title'
+                name: 'ฟิลด์ชื่อ (หลายรายการ)',
+                desc: 'รายการฟิลด์ frontmatter คั่นด้วยเครื่องหมายจุลภาค ใช้ค่าแรกที่ไม่ว่าง กลับไปใช้ชื่อไฟล์',
+                placeholder: 'หัวข้อ, ชื่อ'
             },
             frontmatterCreatedField: {
                 name: 'ฟิลด์ timestamp สร้าง',

@@ -83,7 +83,11 @@ export const STRINGS_ID = {
         emptySearchQuery: 'Masukkan kueri pencarian sebelum menyimpan',
         emptySearchName: 'Masukkan nama sebelum menyimpan pencarian',
         add: 'Tambahkan ke pintasan',
+        addNotesCount: 'Tambahkan {count} catatan ke pintasan',
+        addFilesCount: 'Tambahkan {count} file ke pintasan',
         remove: 'Hapus dari pintasan',
+        removeAll: 'Hapus semua pintasan',
+        removeAllConfirm: 'Hapus semua pintasan?',
         folderNotesPinned: 'Menyematkan {count} catatan folder'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_ID = {
             copyPath: 'Salin path sistem file',
             copyRelativePath: 'Salin path vault',
             createFolderNote: 'Buat catatan folder',
+            detachFolderNote: 'Lepaskan catatan folder',
             deleteFolderNote: 'Hapus catatan folder',
             changeIcon: 'Ubah ikon',
             changeColor: 'Ubah warna',
@@ -399,6 +404,7 @@ export const STRINGS_ID = {
             folderAlreadyExists: 'Folder "{name}" sudah ada',
             folderNotesDisabled: 'Aktifkan catatan folder di pengaturan untuk mengkonversi file',
             folderNoteAlreadyLinked: 'File ini sudah berfungsi sebagai catatan folder',
+            folderNoteNotFound: 'Tidak ada catatan folder di folder yang dipilih',
             folderNoteUnsupportedExtension: 'Ekstensi file tidak didukung: {extension}',
             folderNoteMoveFailed: 'Gagal memindahkan file saat konversi: {error}',
             folderNoteRenameConflict: 'File bernama "{name}" sudah ada di folder',
@@ -514,6 +520,8 @@ export const STRINGS_ID = {
         selectNextFile: 'Pilih file berikutnya',
         selectPreviousFile: 'Pilih file sebelumnya',
         convertToFolderNote: 'Konversi ke catatan folder',
+        setAsFolderNote: 'Atur sebagai catatan folder',
+        detachFolderNote: 'Lepaskan catatan folder',
         pinAllFolderNotes: 'Sematkan semua catatan folder',
         navigateToFolder: 'Navigasi ke folder',
         navigateToTag: 'Navigasi ke tag',
@@ -590,7 +598,13 @@ export const STRINGS_ID = {
             },
             notes: {
                 frontmatter: 'Frontmatter',
-                display: 'Tampilan',
+                icon: 'Ikon',
+                title: 'Judul',
+                previewText: 'Teks pratinjau',
+                featureImage: 'Gambar fitur',
+                tags: 'Tag',
+                date: 'Tanggal',
+                parentFolder: 'Folder induk',
                 textTransformAdd: 'Tambahkan transformasi baru',
                 textTransformPatternPlaceholder: 'Ekspresi reguler',
                 textTransformReplacementPlaceholder: 'Penggantian',
@@ -693,7 +707,27 @@ export const STRINGS_ID = {
             },
             showFileIcons: {
                 name: 'Tampilkan ikon file',
-                desc: 'Tampilkan ikon file dengan spasi rata kiri. Menonaktifkan menghapus ikon dan indentasi.'
+                desc: 'Tampilkan ikon file dengan spasi rata kiri. Menonaktifkan menghapus ikon dan indentasi. Prioritas: kustom > nama file > tipe file > default.'
+            },
+            showFilenameMatchIcons: {
+                name: 'Ikon berdasarkan nama file',
+                desc: 'Tetapkan ikon ke file berdasarkan teks dalam namanya.'
+            },
+            fileNameIconMap: {
+                name: 'Peta ikon nama file',
+                desc: 'File yang berisi teks mendapat ikon yang ditentukan. Satu pemetaan per baris: teks=ikon',
+                placeholder: '# teks=ikon\nrapat=calendar\nfaktur=receipt',
+                resetTooltip: 'Kembalikan ke default'
+            },
+            showCategoryIcons: {
+                name: 'Ikon berdasarkan tipe file',
+                desc: 'Tetapkan ikon ke file berdasarkan ekstensinya.'
+            },
+            fileTypeIconMap: {
+                name: 'Peta ikon tipe file',
+                desc: 'File dengan ekstensi mendapat ikon yang ditentukan. Satu pemetaan per baris: ekstensi=ikon',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: 'Kembalikan ke default'
             },
             optimizeNoteHeight: {
                 name: 'Optimalkan tinggi catatan',
@@ -782,6 +816,18 @@ export const STRINGS_ID = {
             autoExpandFoldersTags: {
                 name: 'Luaskan saat dipilih',
                 desc: 'Luaskan folder dan tag saat dipilih. Dalam mode panel tunggal, pilihan pertama meluaskan, pilihan kedua menampilkan file.'
+            },
+            springLoadedFolders: {
+                name: 'Luaskan saat menyeret (desktop saja)',
+                desc: 'Luaskan folder dan tag saat mengarahkan kursor selama menyeret.'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: 'Tunda perluasan pertama',
+                desc: 'Penundaan sebelum folder atau tag pertama diluaskan selama penyeretan (detik).'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: 'Tunda perluasan berikutnya',
+                desc: 'Penundaan sebelum meluaskan folder atau tag tambahan selama penyeretan yang sama (detik).'
             },
             navigationBanner: {
                 name: 'Banner navigasi (profil vault)',
@@ -884,7 +930,7 @@ export const STRINGS_ID = {
             },
             vaultProfiles: {
                 name: 'Profil vault',
-                desc: 'Profil menyimpan visibilitas jenis file, folder tersembunyi, tag tersembunyi, catatan tersembunyi, pintasan, dan banner navigasi. Beralih profil dari header panel navigasi.',
+                desc: 'Profil menyimpan visibilitas jenis file, file tersembunyi, folder tersembunyi, tag tersembunyi, catatan tersembunyi, pintasan, dan banner navigasi. Beralih profil dari header panel navigasi.',
                 defaultName: 'Default',
                 addButton: 'Tambah profil',
                 editProfilesButton: 'Edit profil',
@@ -897,7 +943,8 @@ export const STRINGS_ID = {
                 editModalTitle: 'Edit profil',
                 addModalPlaceholder: 'Nama profil',
                 deleteModalTitle: 'Hapus {name}',
-                deleteModalMessage: 'Hapus {name}? Filter folder, tag, dan catatan tersembunyi yang disimpan di profil ini akan dihapus.',
+                deleteModalMessage:
+                    'Hapus {name}? Filter file, folder, tag, dan catatan tersembunyi yang disimpan di profil ini akan dihapus.',
                 moveUp: 'Pindah ke atas',
                 moveDown: 'Pindah ke bawah',
                 errors: {
@@ -1242,9 +1289,9 @@ export const STRINGS_ID = {
                 noticeError: 'Migrasi gagal. Periksa konsol untuk detail.'
             },
             frontmatterNameField: {
-                name: 'Field nama',
-                desc: 'Field frontmatter untuk digunakan sebagai nama tampilan catatan. Biarkan kosong untuk menggunakan nama file.',
-                placeholder: 'title'
+                name: 'Field-field nama',
+                desc: 'Daftar field frontmatter dipisahkan koma. Nilai tidak kosong pertama digunakan. Kembali ke nama file.',
+                placeholder: 'judul, nama'
             },
             frontmatterCreatedField: {
                 name: 'Field timestamp dibuat',

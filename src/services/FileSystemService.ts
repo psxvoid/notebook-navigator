@@ -378,6 +378,21 @@ export class FileSystemOperations {
     }
 
     /**
+     * Builds a folder note filename for the provided base name.
+     */
+    private buildFolderNoteFileName(baseName: string, extension: string, isExcalidraw: boolean): string {
+        const folderNoteBaseName = isExcalidraw ? `${baseName}${EXCALIDRAW_BASENAME_SUFFIX}` : baseName;
+        return `${folderNoteBaseName}.${extension}`;
+    }
+
+    /**
+     * Builds a folder note filename for the provided base name.
+     */
+    private getFolderNoteFileName(baseName: string, folderNote: TFile): string {
+        return this.buildFolderNoteFileName(baseName, folderNote.extension, isExcalidrawFile(folderNote));
+    }
+
+    /**
      * Returns options for input filtering and warnings in InputModal
      */
     private getNameInputModalOptions(): {
@@ -533,7 +548,7 @@ export class FileSystemOperations {
                     }
 
                     if (folderNote) {
-                        const newNoteName = `${filteredName}.${folderNote.extension}`;
+                        const newNoteName = this.getFolderNoteFileName(filteredName, folderNote);
                         const folderBase = folder.path === '/' ? '' : `${folder.path}/`;
                         const conflictPath = normalizePath(`${folderBase}${newNoteName}`);
                         const conflict = this.app.vault.getFileByPath(conflictPath);
@@ -555,7 +570,8 @@ export class FileSystemOperations {
 
                     // Rename the folder note to match the new folder name when using default naming
                     if (folderNote) {
-                        const newNotePath = normalizePath(`${newFolderPath}/${filteredName}.${folderNote.extension}`);
+                        const newNoteName = this.getFolderNoteFileName(filteredName, folderNote);
+                        const newNotePath = normalizePath(`${newFolderPath}/${newNoteName}`);
                         await this.app.fileManager.renameFile(folderNote, newNotePath);
                     }
                 } catch (error) {
@@ -1087,6 +1103,80 @@ export class FileSystemOperations {
     }
 
     /**
+     * Renames a file to match its parent folder's folder note naming
+     * @param file - The file to rename
+     * @param settings - Notebook Navigator settings for folder note configuration
+     */
+    async setFileAsFolderNote(file: TFile, settings: NotebookNavigatorSettings): Promise<void> {
+        if (!settings.enableFolderNotes) {
+            return;
+        }
+
+        const parent = file.parent;
+        if (!parent || !(parent instanceof TFolder)) {
+            return;
+        }
+
+        if (parent.path === '/') {
+            return;
+        }
+
+        const detectionSettings = {
+            enableFolderNotes: settings.enableFolderNotes,
+            folderNoteName: settings.folderNoteName
+        };
+
+        if (isFolderNote(file, parent, detectionSettings)) {
+            showNotice(strings.fileSystem.errors.folderNoteAlreadyLinked, { variant: 'warning' });
+            return;
+        }
+
+        if (!isSupportedFolderNoteExtension(file.extension)) {
+            showNotice(strings.fileSystem.errors.folderNoteUnsupportedExtension.replace('{extension}', file.extension), {
+                variant: 'warning'
+            });
+            return;
+        }
+
+        const existingFolderNote = getFolderNote(parent, detectionSettings);
+        if (existingFolderNote && existingFolderNote.path !== file.path) {
+            showNotice(strings.fileSystem.errors.folderNoteAlreadyExists, { variant: 'warning' });
+            return;
+        }
+
+        const isExcalidraw = isExcalidrawFile(file);
+        let targetBaseName = settings.folderNoteName || parent.name;
+        if (isExcalidraw) {
+            // Strip .excalidraw from the base name for folder note naming.
+            targetBaseName = stripExcalidrawSuffix(targetBaseName);
+            if (!targetBaseName) {
+                return;
+            }
+        }
+
+        const targetFileName = this.buildFolderNoteFileName(targetBaseName, file.extension, isExcalidraw);
+        const parentBase = parent.path === '/' ? '' : `${parent.path}/`;
+        const targetPath = normalizePath(`${parentBase}${targetFileName}`);
+
+        if (file.path === targetPath) {
+            return;
+        }
+
+        if (this.app.vault.getAbstractFileByPath(targetPath)) {
+            showNotice(strings.fileSystem.errors.folderNoteRenameConflict.replace('{name}', targetFileName), {
+                variant: 'warning'
+            });
+            return;
+        }
+
+        try {
+            await this.app.fileManager.renameFile(file, targetPath);
+        } catch (error) {
+            this.notifyError(strings.fileSystem.errors.renameFile, error);
+        }
+    }
+
+    /**
      * Converts a single file into a folder note by creating a sibling folder and moving the file inside
      * @param file - The file to convert
      * @param settings - Notebook Navigator settings for folder note configuration
@@ -1124,9 +1214,19 @@ export class FileSystemOperations {
             return;
         }
 
+        const isExcalidraw = isExcalidrawFile(file);
+        let folderName = file.basename;
+        if (isExcalidraw) {
+            // Strip .excalidraw from the basename when deriving the folder name.
+            folderName = stripExcalidrawSuffix(folderName);
+            if (!folderName) {
+                showNotice(strings.fileSystem.errors.folderNoteConversionFailed, { variant: 'warning' });
+                return;
+            }
+        }
+
         // Build target folder path using the file's basename
         const parentPath = parent.path === '/' ? '' : `${parent.path}/`;
-        const folderName = file.basename;
         const targetFolderPath = normalizePath(`${parentPath}${folderName}`);
 
         // Check if folder already exists to avoid conflicts
@@ -1136,7 +1236,15 @@ export class FileSystemOperations {
         }
 
         // Determine final filename based on folder note settings
-        const finalBaseName = settings.folderNoteName ? settings.folderNoteName : folderName;
+        let finalBaseName = settings.folderNoteName ? settings.folderNoteName : folderName;
+        if (isExcalidraw) {
+            // Strip .excalidraw from the base name for folder note naming.
+            finalBaseName = stripExcalidrawSuffix(finalBaseName);
+            if (!finalBaseName) {
+                showNotice(strings.fileSystem.errors.folderNoteConversionFailed, { variant: 'warning' });
+                return;
+            }
+        }
 
         // Create the target folder
         try {
@@ -1179,7 +1287,7 @@ export class FileSystemOperations {
             let movedFile: TFile = movedFileEntry;
 
             // Rename file if folder note name setting requires it
-            const finalFileName = `${finalBaseName}.${file.extension}`;
+            const finalFileName = this.buildFolderNoteFileName(finalBaseName, file.extension, isExcalidraw);
             const finalPath = normalizePath(`${targetFolder.path}/${finalFileName}`);
 
             if (movedFile.path !== finalPath) {

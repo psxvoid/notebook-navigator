@@ -53,6 +53,50 @@ export function renderFoldersTagsTab(context: SettingsTabContext): void {
         }
     );
 
+    if (!Platform.isMobile) {
+        const springLoadedFoldersSetting = topGroup.addSetting(setting => {
+            setting.setName(strings.settings.items.springLoadedFolders.name).setDesc(strings.settings.items.springLoadedFolders.desc);
+        });
+        const springLoadedFoldersSubSettings = wireToggleSettingWithSubSettings(
+            springLoadedFoldersSetting,
+            () => plugin.settings.springLoadedFolders,
+            async value => {
+                plugin.settings.springLoadedFolders = value;
+                await plugin.saveSettingsAndUpdate();
+            }
+        );
+
+        new Setting(springLoadedFoldersSubSettings)
+            .setName(strings.settings.items.springLoadedFoldersInitialDelay.name)
+            .setDesc(strings.settings.items.springLoadedFoldersInitialDelay.desc)
+            .addSlider(slider =>
+                slider
+                    .setLimits(0.1, 2, 0.1)
+                    .setValue(plugin.settings.springLoadedFoldersInitialDelay)
+                    .setInstant(false)
+                    .setDynamicTooltip()
+                    .onChange(async value => {
+                        plugin.settings.springLoadedFoldersInitialDelay = Math.round(value * 10) / 10;
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+
+        new Setting(springLoadedFoldersSubSettings)
+            .setName(strings.settings.items.springLoadedFoldersSubsequentDelay.name)
+            .setDesc(strings.settings.items.springLoadedFoldersSubsequentDelay.desc)
+            .addSlider(slider =>
+                slider
+                    .setLimits(0.1, 2, 0.1)
+                    .setValue(plugin.settings.springLoadedFoldersSubsequentDelay)
+                    .setInstant(false)
+                    .setDynamicTooltip()
+                    .onChange(async value => {
+                        plugin.settings.springLoadedFoldersSubsequentDelay = Math.round(value * 10) / 10;
+                        await plugin.saveSettingsAndUpdate();
+                    })
+            );
+    }
+
     const foldersGroup = createGroup(strings.settings.sections.folders);
 
     addToggleSetting(

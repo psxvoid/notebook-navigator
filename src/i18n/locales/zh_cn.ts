@@ -82,7 +82,11 @@ export const STRINGS_ZH_CN = {
         emptySearchQuery: '保存前请输入搜索查询',
         emptySearchName: '保存搜索前请输入名称',
         add: '添加到快捷方式',
+        addNotesCount: '添加 {count} 个笔记到快捷方式',
+        addFilesCount: '添加 {count} 个文件到快捷方式',
         remove: '从快捷方式移除',
+        removeAll: '移除所有快捷方式',
+        removeAllConfirm: '移除所有快捷方式？',
         folderNotesPinned: '已固定 {count} 个文件夹笔记'
     },
 
@@ -183,6 +187,7 @@ export const STRINGS_ZH_CN = {
             copyPath: '复制文件系统路径',
             copyRelativePath: '复制仓库路径',
             createFolderNote: '创建文件夹笔记',
+            detachFolderNote: '解除文件夹笔记',
             deleteFolderNote: '删除文件夹笔记',
             changeIcon: '更改图标',
             changeColor: '更改颜色',
@@ -400,6 +405,7 @@ export const STRINGS_ZH_CN = {
             folderAlreadyExists: '文件夹"{name}"已存在',
             folderNotesDisabled: '请在设置中启用文件夹笔记以转换文件',
             folderNoteAlreadyLinked: '此文件已作为文件夹笔记',
+            folderNoteNotFound: '所选文件夹中没有文件夹笔记',
             folderNoteUnsupportedExtension: '不支持的文件扩展名：{extension}',
             folderNoteMoveFailed: '转换过程中移动文件失败：{error}',
             folderNoteRenameConflict: '文件夹中已存在名为"{name}"的文件',
@@ -515,6 +521,8 @@ export const STRINGS_ZH_CN = {
         selectNextFile: '选择下一个文件', // Command palette: Selects the next file in the current view (English: Select next file)
         selectPreviousFile: '选择上一个文件', // Command palette: Selects the previous file in the current view (English: Select previous file)
         convertToFolderNote: '转换为文件夹笔记', // Command palette: Converts the active file into a folder note with a new folder (English: Convert to folder note)
+        setAsFolderNote: '设为文件夹笔记', // Command palette: Renames the active file to its folder note name (English: Set as folder note)
+        detachFolderNote: '解除文件夹笔记', // Command palette: Renames the active folder note to a new name (English: Detach folder note)
         pinAllFolderNotes: '固定所有文件夹笔记', // Command palette: Pins all folder notes to shortcuts (English: Pin all folder notes)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
@@ -591,7 +599,13 @@ export const STRINGS_ZH_CN = {
             },
             notes: {
                 frontmatter: '前置元数据',
-                display: '外观',
+                icon: '图标',
+                title: '标题',
+                previewText: '预览文本',
+                featureImage: '特色图片',
+                tags: '标签',
+                date: '日期',
+                parentFolder: '父文件夹',
                 textTransformAdd: '添加新变换',
                 textTransformPatternPlaceholder: '正则表达式',
                 textTransformReplacementPlaceholder: '替代品',
@@ -693,7 +707,27 @@ export const STRINGS_ZH_CN = {
             },
             showFileIcons: {
                 name: '显示文件图标',
-                desc: '显示文件图标并保留左对齐间距。禁用后将移除图标和缩进。'
+                desc: '显示文件图标并保留左对齐间距。禁用后将移除图标和缩进。优先级：自定义 > 文件名 > 文件类型 > 默认。'
+            },
+            showFilenameMatchIcons: {
+                name: '按文件名设置图标',
+                desc: '根据文件名中的文本分配图标。'
+            },
+            fileNameIconMap: {
+                name: '文件名图标映射',
+                desc: '包含指定文本的文件将获得指定图标。每行一个映射：文本=图标',
+                placeholder: '# 文本=图标\n会议=calendar\n发票=receipt',
+                resetTooltip: '恢复默认值'
+            },
+            showCategoryIcons: {
+                name: '按文件类型设置图标',
+                desc: '根据文件扩展名分配图标。'
+            },
+            fileTypeIconMap: {
+                name: '文件类型图标映射',
+                desc: '具有指定扩展名的文件将获得指定图标。每行一个映射：扩展名=图标',
+                placeholder: '# Extension=icon\ncpp=file-code\npdf=book-open',
+                resetTooltip: '恢复默认值'
             },
             optimizeNoteHeight: {
                 name: '优化笔记高度',
@@ -783,6 +817,18 @@ export const STRINGS_ZH_CN = {
                 name: '选中时展开',
                 desc: '选中时展开文件夹和标签。在单窗格模式下，首次选中展开，再次选中显示文件。'
             },
+            springLoadedFolders: {
+                name: '拖动时展开（仅桌面端）',
+                desc: '拖动操作中悬停时展开文件夹和标签。'
+            },
+            springLoadedFoldersInitialDelay: {
+                name: '首次展开延迟',
+                desc: '拖动时首次展开文件夹或标签前的延迟（秒）。'
+            },
+            springLoadedFoldersSubsequentDelay: {
+                name: '后续展开延迟',
+                desc: '同一次拖动中展开更多文件夹或标签前的延迟（秒）。'
+            },
             navigationBanner: {
                 name: '导航横幅（仓库配置文件）',
                 desc: '在导航窗格顶部显示一张图片。随所选仓库配置文件而变化。',
@@ -863,7 +909,7 @@ export const STRINGS_ZH_CN = {
             },
             vaultProfiles: {
                 name: '仓库配置文件',
-                desc: '配置文件存储文件类型可见性、隐藏文件夹、隐藏标签、隐藏笔记、快捷方式和导航横幅。从导航窗格标题切换配置文件。',
+                desc: '配置文件存储文件类型可见性、隐藏文件、隐藏文件夹、隐藏标签、隐藏笔记、快捷方式和导航横幅。从导航窗格标题切换配置文件。',
                 defaultName: '默认',
                 addButton: '添加配置文件',
                 editProfilesButton: '编辑配置文件',
@@ -876,7 +922,7 @@ export const STRINGS_ZH_CN = {
                 editModalTitle: '编辑配置文件',
                 addModalPlaceholder: '配置文件名称',
                 deleteModalTitle: '删除 {name}',
-                deleteModalMessage: '删除 {name}？保存在此配置文件中的隐藏文件夹、标签和笔记过滤器将被删除。',
+                deleteModalMessage: '删除 {name}？保存在此配置文件中的隐藏文件、文件夹、标签和笔记过滤器将被删除。',
                 moveUp: '上移',
                 moveDown: '下移',
                 errors: {
@@ -1219,9 +1265,9 @@ export const STRINGS_ZH_CN = {
                 desc: '使用前言设置笔记名称、时间戳、图标和颜色'
             },
             frontmatterNameField: {
-                name: '名称字段',
-                desc: '用作笔记显示名称的前言字段。留空使用文件名。',
-                placeholder: '标题'
+                name: '名称字段（多个）',
+                desc: '逗号分隔的前言字段列表。使用第一个非空值。回退到文件名。',
+                placeholder: '标题, 名称'
             },
             frontmatterIconField: {
                 name: '图标字段',
