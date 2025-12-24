@@ -22,11 +22,14 @@ import { TagFileMutations } from '../../../src/services/tagOperations/TagFileMut
 import type { NotebookNavigatorSettings } from '../../../src/settings/types';
 import { DEFAULT_SETTINGS } from '../../../src/settings/defaultSettings';
 
-const cachedTagsByPath = new Map<string, string[]>();
+import { EMPTY_MAP } from '../../../src/utils/empty';
+import { StubTagCacheV2 } from '../../stubs/TagCacheV2';
+
+const cachedTagsByPath = new StubTagCacheV2()
 
 vi.mock('../../../src/storage/fileOperations', () => ({
     getDBInstance: () => ({
-        getCachedTags: (path: string) => cachedTagsByPath.get(path) ?? []
+        getCachedTagsV2: (path: string) => cachedTagsByPath.get(path) ?? EMPTY_MAP
     })
 }));
 

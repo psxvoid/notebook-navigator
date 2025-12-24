@@ -855,6 +855,30 @@ export const STRINGS_PL = {
                 desc: 'Lista właściwości frontmatter oddzielonych przecinkami. Notatki zawierające którekolwiek z tych właściwości będą ukryte (np. draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Tryb tagu (profil skarbca)',
+                    desc: 'Tryb tagów, który ma być używany dla tego profilu skarbca i wyświetlany w drzewie tagów. „Brak” oznacza, że ​​używane są normalne tagi. „Zamień” oznacza, że ​​widoczne są tylko niestandardowe właściwości tagów, a normalne tagi są ukryte. „Scal” oznacza, że ​​widoczne są zarówno właściwości tagów, jak i normalne tagi.',
+                    options: {
+                        none: 'Nic',
+                        replace: 'Zastępować',
+                        merge: 'Łączyć',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Tag główny (profil skarbca)',
+                    desc: 'Pozwala określić, który tag lub właściwość tagu jest traktowany jako tag „główny”. Tagi główne są używane w operacjach edycji tagów. „Domyślne” oznacza, że ​​zwykłe tagi są ustawiane jako tagi główne. „Pierwsza właściwość tagu” oznacza, że ​​pierwsza właściwość tagu na „liście właściwości tagu” jest ustawiona jako „główna”.',
+                    options: {
+                        default: 'Domyślny',
+                        firstTagProp: 'Pierwsza właściwość tagu',
+                    }
+                },
+                tagPropList: {
+                    name: 'Właściwości tagu (profil skarbca)',
+                    desc: 'Lista właściwości frontmatter rozdzielonych przecinkami. Wymienione właściwości będą traktowane jako dodatkowe źródła tagów (np. tagi bazowe, tagi klas notatek).',
+                    placeholder: 'tagi-podstawowe, tagi-niestandardowe',
+                },
+            },
             excludedFileNamePatterns: {
                 name: 'Ukryj pliki (profil sejfu)',
                 desc: 'Lista wzorców nazw plików oddzielonych przecinkami do ukrycia. Obsługuje symbole wieloznaczne * i ścieżki / (np. temp-*, *.png, /assets/*).',

@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -61,7 +61,8 @@ export class TagOperations {
             this.getTagTreeService,
             this.getMetadataService,
             tagPath => this.resolveDisplayTagPath(tagPath),
-            () => this.createRenameHooks()
+            () => this.createRenameHooks(),
+            this.getSettings
         );
         this.deleteWorkflow = new TagDeleteWorkflow(this.app, this.fileMutations, this.getTagTreeService, this.getMetadataService, () =>
             this.createDeleteHooks()
@@ -91,7 +92,7 @@ export class TagOperations {
     }
 
     async addTagToFiles(tag: string, files: TFile[]): Promise<{ added: number; skipped: number }> {
-        return this.batchOperations.addTagToFiles(tag, files);
+        return this.batchOperations.addTagToFiles(tag, files, this.getSettings());
     }
 
     getTagsFromFiles(files: TFile[]): string[] {

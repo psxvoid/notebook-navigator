@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@
 import React, { useRef, useMemo, useEffect, useState, useCallback, useId } from 'react';
 import { TFile, TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
-import type { FileContentChange, IndexedDBStorage } from '../storage/IndexedDBStorage';
+import type { FileContentChangeV2, IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUXPreferences } from '../context/UXPreferencesContext';
@@ -77,6 +77,7 @@ import { useActiveProfile } from '../context/SettingsContext';
 
 import { useSelectionState } from 'src/context/SelectionContext';
 import { EMPTY_ARRAY, EMPTY_STRING } from 'src/utils/empty';
+import { getActiveTags } from 'src/services/tagOperations/TagPropsAdapter';
 
 const FEATURE_IMAGE_MAX_ASPECT_RATIO = 16 / 9;
 const sortTagsAlphabetically = (tags: string[]): void => {
@@ -306,7 +307,8 @@ export const FileItem = React.memo(function FileItem({
 
         const preview = appearanceSettings.showPreview && file.extension === 'md' ? db.getCachedPreviewText(file.path) : '';
 
-        const tagList = [...(db.getCachedTags(file.path) ?? [])];
+        const tags = getActiveTags(db.getCachedTagsV2(file.path), settings);
+        const tagList = [...(tags ?? [])];
 
         let imageUrl: string | null = null;
         if (appearanceSettings.showImage) {
@@ -326,7 +328,7 @@ export const FileItem = React.memo(function FileItem({
         }
 
         return { preview, tags: tagList, imageUrl };
-    }, [appearanceSettings.showImage, appearanceSettings.showPreview, app, file, getDB]);
+    }, [appearanceSettings.showImage, appearanceSettings.showPreview, app, file, getDB, settings]);
 
     // === State ===
     const [isHovered, setIsHovered] = React.useState(false);
@@ -343,7 +345,7 @@ export const FileItem = React.memo(function FileItem({
     }, [loadFileData])
 
     const [previewText, setPreviewText] = useState<string>(initialDataRef.current?.preview ?? EMPTY_STRING);
-    const [tags, setTags] = useState<string[]>(initialDataRef.current?.tags ?? EMPTY_ARRAY);
+    const [tags, setTags] = useState<readonly string[]>(initialDataRef.current?.tags ?? EMPTY_ARRAY);
     const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialDataRef.current?.imageUrl ?? null);
     const [featureImageAspectRatio, setFeatureImageAspectRatio] = useState<number | null>(null);
     const [isFeatureImageHidden, setIsFeatureImageHidden] = useState(false);
@@ -868,7 +870,7 @@ export const FileItem = React.memo(function FileItem({
             setFeatureImageUrl(prev => (prev === imageUrl ? prev : imageUrl));
 
             const db = getDB();
-            unsubscribe = db.onFileContentChange(file.path, (changes: FileContentChange['changes']) => {
+            unsubscribe = db.onFileContentChange(file.path, (changes: FileContentChangeV2['changes']) => {
                 // Update preview text when it changes
                 if (changes.preview !== undefined && appearanceSettings.showPreview && file.extension === 'md') {
                     const nextPreview = changes.preview || '';
@@ -896,7 +898,7 @@ export const FileItem = React.memo(function FileItem({
                 }
                 // Update tags when they change
                 if (changes.tags !== undefined) {
-                    const nextTags = [...(changes.tags ?? [])];
+                    const nextTags = getActiveTags(changes.tags, settings)
                     setTags(prev => (areStringArraysEqual(prev, nextTags) ? prev : nextTags));
                 }
                 // Trigger metadata refresh when frontmatter changes
@@ -913,7 +915,7 @@ export const FileItem = React.memo(function FileItem({
             (unsubscribe ?? function(){})();
         };
         // NOTE: include file.path because Obsidian reuses TFile instance on rename
-    }, [file, file.path, appearanceSettings.showPreview, appearanceSettings.showImage, getDB, app, loadFileData]);
+    }, [file, file.path, appearanceSettings.showPreview, appearanceSettings.showImage, getDB, app, loadFileData, settings]);
 
     useEffect(() => {
         if (!featureImageUrl || settings.forceSquareFeatureImage) {

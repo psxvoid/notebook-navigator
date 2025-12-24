@@ -36,7 +36,7 @@ import { STORAGE_KEYS, type VisibilityPreferences } from '../../types';
 import { normalizeTagPath } from '../../utils/tagUtils';
 import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
 
-import { CacheRebuildMode } from '../../main';
+import { CacheRebuildMode } from '../../types';
 
 /**
  * Reveals the navigator view and focuses whichever pane is currently visible

@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -852,6 +852,30 @@ export const STRINGS_VI = {
                 name: 'Ẩn ghi chú (hồ sơ vault)',
                 desc: 'Danh sách thuộc tính frontmatter phân cách bằng dấu phẩy. Ghi chú chứa bất kỳ thuộc tính nào sẽ bị ẩn (ví dụ: nháp, riêng tư, lưu trữ).',
                 placeholder: 'nháp, riêng tư'
+            },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Chế độ gắn thẻ (hồ sơ kho lưu trữ)',
+                    desc: 'Chế độ gắn thẻ được sử dụng cho hồ sơ kho lưu trữ này và hiển thị trong cây thẻ. "None" nghĩa là đang sử dụng các thẻ thông thường. "Replace" nghĩa là chỉ các thuộc tính thẻ tùy chỉnh được hiển thị và các thẻ thông thường bị ẩn. "Merge" nghĩa là cả thuộc tính thẻ và thẻ thông thường đều được hiển thị.',
+                    options: {
+                        none: 'Không có',
+                        replace: 'Thay thế',
+                        merge: 'Hợp nhất',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Thẻ chính (hồ sơ kho lưu trữ)',
+                    desc: 'Cho phép chỉ định thẻ hoặc thuộc tính thẻ nào được coi là thẻ "chính". Thẻ chính được sử dụng trong các thao tác chỉnh sửa thẻ. "Mặc định" có nghĩa là các thẻ thông thường được đặt làm thẻ chính. "Thuộc tính thẻ đầu tiên" có nghĩa là thuộc tính thẻ đầu tiên trong "danh sách thuộc tính thẻ" được đặt làm "chính".',
+                    options: {
+                        default: 'Mặc định',
+                        firstTagProp: 'Thuộc tính thẻ đầu tiên',
+                    }
+                },
+                tagPropList: {
+                    name: 'Thuộc tính thẻ (hồ sơ kho lưu trữ)',
+                    desc: 'Danh sách các thuộc tính phần đầu trang được phân tách bằng dấu phẩy. Các thuộc tính được liệt kê sẽ được coi là nguồn bổ sung cho các thẻ (ví dụ: thẻ-cơ-bản, thẻ-tùy-chỉnh).',
+                    placeholder: 'thẻ-cơ-bản, thẻ-tùy-chỉnh',
+                },
             },
             excludedFileNamePatterns: {
                 name: 'Ẩn tệp (hồ sơ vault)',

@@ -1,12 +1,32 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import { describe, it, expect } from 'vitest';
 import { buildTagTreeFromDatabase, findTagNode, collectTagFilePaths, collectAllTagPaths, getTotalNoteCount } from '../../src/utils/tagTree';
 import { normalizeTagPathValue } from '../../src/utils/tagPrefixMatcher';
-import type { IndexedDBStorage, FileData } from '../../src/storage/IndexedDBStorage';
+import type { IndexedDBStorage, FileData, TagsV2 } from '../../src/storage/IndexedDBStorage';
 import type { TagTreeNode } from '../../src/types/storage';
+import { CacheCustomFields } from '../../src/types';
+import { DEFAULT_SETTINGS } from '../../src/settings/defaultSettings';
 
 interface MockFile {
     path: string;
-    tags: string[] | null;
+    tags: TagsV2;
 }
 
 function createMockDb(files: MockFile[]): IndexedDBStorage {
@@ -23,7 +43,7 @@ function createMockDb(files: MockFile[]): IndexedDBStorage {
     } as unknown as IndexedDBStorage;
 }
 
-function createFileData(tags: string[] | null): FileData {
+function createFileData(tags: TagsV2): FileData {
     return {
         mtime: 0,
         tags,
@@ -64,15 +84,15 @@ describe('tag tree hardening', () => {
         const db = createMockDb([
             {
                 path: 'inline.md',
-                tags: ['#enemies//dragons', '#enemies/dragons//fire', '#enemies////dragons////fire']
+                tags: new Map([[CacheCustomFields.TagDefault, ['#enemies//dragons', '#enemies/dragons//fire', '#enemies////dragons////fire']]])
             },
             {
                 path: 'frontmatter.md',
-                tags: ['enemies///dragons///ice', '#enemies/dragons//ice']
+                tags: new Map([[CacheCustomFields.TagDefault, ['enemies///dragons///ice', '#enemies/dragons//ice']]])
             }
         ]);
 
-        const { tagTree } = buildTagTreeFromDatabase(db);
+        const { tagTree } = buildTagTreeFromDatabase(db, DEFAULT_SETTINGS);
         validateTreeHasNoSelfCycles(tagTree);
 
         const enemiesPath = normalizeTagPathValue('#enemies');
@@ -90,11 +110,11 @@ describe('tag tree hardening', () => {
         const db = createMockDb([
             {
                 path: 'dup.md',
-                tags: ['#projects/projects', '#projects//projects//ideas', '#Projects/Projects///ideas///drafts']
+                tags: new Map([[CacheCustomFields.TagDefault, ['#projects/projects', '#projects//projects//ideas', '#Projects/Projects///ideas///drafts']]])
             }
         ]);
 
-        const { tagTree } = buildTagTreeFromDatabase(db);
+        const { tagTree } = buildTagTreeFromDatabase(db, DEFAULT_SETTINGS);
         validateTreeHasNoSelfCycles(tagTree);
 
         const repeatedPath = normalizeTagPathValue('#projects//projects');
@@ -108,15 +128,15 @@ describe('tag tree hardening', () => {
         const db = createMockDb([
             {
                 path: 'invalid.md',
-                tags: ['', '#', '#/', '##', '#///', '#//', '////', '#Mixed//Case']
+                tags: new Map([[CacheCustomFields.TagDefault, ['', '#', '#/', '##', '#///', '#//', '////', '#Mixed//Case']]])
             },
             {
                 path: 'valid.md',
-                tags: ['#focus', 'focus//areas', '#Focus///Areas///deep']
+                tags: new Map([[CacheCustomFields.TagDefault, ['#focus', 'focus//areas', '#Focus///Areas///deep']]])
             }
         ]);
 
-        const { tagTree } = buildTagTreeFromDatabase(db);
+        const { tagTree } = buildTagTreeFromDatabase(db, DEFAULT_SETTINGS);
         validateTreeHasNoSelfCycles(tagTree);
         expect(Array.from(tagTree.keys()).sort()).toEqual(['focus', 'mixed']);
 
@@ -187,14 +207,14 @@ describe('tag tree hardening', () => {
 describe('tagged count visibility', () => {
     it('excludes files with only hidden tags when hidden tags are filtered', () => {
         const db = createMockDb([
-            { path: 'visible.md', tags: ['projects/work'] },
-            { path: 'hidden.md', tags: ['archive/secret'] }
+            { path: 'visible.md', tags: new Map([[CacheCustomFields.TagDefault, ['projects/work']]]) },
+            { path: 'hidden.md', tags: new Map([[CacheCustomFields.TagDefault, ['archive/secret']]]) }
         ]);
 
-        const filtered = buildTagTreeFromDatabase(db, undefined, undefined, ['archive'], false);
+        const filtered = buildTagTreeFromDatabase(db, DEFAULT_SETTINGS, undefined, undefined, ['archive'], false);
         expect(filtered.tagged).toBe(1);
 
-        const unfiltered = buildTagTreeFromDatabase(db, undefined, undefined, ['archive'], true);
+        const unfiltered = buildTagTreeFromDatabase(db, DEFAULT_SETTINGS, undefined, undefined, ['archive'], true);
         expect(unfiltered.tagged).toBe(2);
     });
 });

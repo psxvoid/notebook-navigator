@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -111,6 +111,28 @@ export const NavigationPaneItemType = {
     LIST_SPACER: 'list-spacer',
     ROOT_SPACER: 'root-spacer'
 } as const;
+
+export const enum CacheRebuildMode {
+    DropDatabaseSlow,
+    RefreshFast,
+}
+
+export const enum CacheCustomFields {
+    TagDefault = '9d470e29'
+};
+
+export const DEFAULT_TAG_PROPS = [CacheCustomFields.TagDefault] as const;
+
+export const enum TagPropMode {
+    None,
+    Replace,
+    Merge,
+}
+
+export const enum DefaultTagProp {
+    DefaultTag,
+    FirstTagProp
+}
 
 export const enum ListExpandMode {
     None,

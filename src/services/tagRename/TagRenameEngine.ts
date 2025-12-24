@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,10 @@ import { normalizeTagPathValue } from '../../utils/tagPrefixMatcher';
 import type { TagTreeService } from '../TagTreeService';
 import { mutateFrontmatterTagFields } from './frontmatterTagMutator';
 import { showNotice } from '../../utils/noticeUtils';
+import { createMainTagPredicate, isDefaultTagActive } from '../../utils/vaultProfiles';
+import { NotebookNavigatorSettings } from '../../settings';
+import { getMainTagsFromFrontmatter } from '../tagOperations/TagPropsAdapter';
+import { EMPTY_ARRAY } from '../../utils/empty';
 
 /**
  * Describes a tag and provides helper utilities for normalization.
@@ -219,7 +223,8 @@ export class RenameFile {
         private readonly app: App,
         private readonly path: string,
         private readonly tagPositions: TagCache[],
-        private readonly hasFrontMatterMatches: boolean
+        private readonly hasFrontMatterMatches: boolean,
+        private readonly getSettings: () => NotebookNavigatorSettings,
     ) {}
 
     get filePath(): string {
@@ -274,6 +279,7 @@ export class RenameFile {
 
         let changed = false;
 
+        const isMainTag = createMainTagPredicate(this.getSettings())
         await this.app.fileManager.processFrontMatter(file, (frontmatter: Record<string, unknown>) => {
             const renameStringValue = (value: string, isAlias: boolean): [string, boolean] => {
                 const segments = value.split(isAlias ? /(^\s+|\s*,\s*|\s+$)/u : /([\s,]+)/u);
@@ -312,7 +318,7 @@ export class RenameFile {
                     return;
                 }
                 field.set(next);
-            });
+            }, isMainTag);
 
             if (mutated) {
                 changed = true;
@@ -328,7 +334,7 @@ export class RenameFile {
  * Produces a list of RenameFile instances that capture inline tag positions
  * and whether matching values exist in frontmatter.
  */
-export function collectRenameFiles(app: App, tag: TagDescriptor, tagTreeProvider?: TagTreeService | null): RenameFile[] {
+export function collectRenameFiles(app: App, getSettings: () => NotebookNavigatorSettings, tag: TagDescriptor, tagTreeProvider?: TagTreeService | null): RenameFile[] {
     const targets: RenameFile[] = [];
     const metadataCache = app.metadataCache;
     const candidates = new Set<string>();
@@ -346,6 +352,9 @@ export function collectRenameFiles(app: App, tag: TagDescriptor, tagTreeProvider
               })
             : app.vault.getFiles();
 
+    const settings = getSettings()
+    const useDefaultTags = isDefaultTagActive(settings)
+
     for (const file of filesToInspect) {
         if (!file || file.extension !== 'md') {
             continue;
@@ -357,13 +366,18 @@ export function collectRenameFiles(app: App, tag: TagDescriptor, tagTreeProvider
             continue;
         }
 
-        const inlineTags = Array.isArray(cache.tags)
+        const inlineTags = useDefaultTags && Array.isArray(cache.tags)
             ? cache.tags.filter(tagCache => typeof tagCache.tag === 'string' && tag.matches(tagCache.tag)).reverse()
             : [];
 
         const frontmatter = cache.frontmatter;
-        const frontmatterTags = (parseFrontMatterTags(frontmatter) ?? []).map(value => TagDescriptor.ensureHashPrefix(value));
-        const aliasValues = (parseFrontMatterAliases(frontmatter) ?? []).filter(value => TagDescriptor.isTag(value));
+        const frontmatterTags = useDefaultTags ?
+            (parseFrontMatterTags(frontmatter) ?? []).map(value => TagDescriptor.ensureHashPrefix(value))
+            : getMainTagsFromFrontmatter(cache.frontmatter ?? {}, settings)
+
+        const aliasValues = useDefaultTags
+            ? (parseFrontMatterAliases(frontmatter) ?? []).filter(value => TagDescriptor.isTag(value))
+            : EMPTY_ARRAY
 
         const frontmatterMatches = frontmatterTags.filter(value => tag.matches(value));
         const aliasMatches = aliasValues.filter(value => tag.matches(value));
@@ -373,7 +387,7 @@ export function collectRenameFiles(app: App, tag: TagDescriptor, tagTreeProvider
             continue;
         }
 
-        targets.push(new RenameFile(app, path, inlineTags, hasFrontmatter));
+        targets.push(new RenameFile(app, path, inlineTags, hasFrontmatter, getSettings));
     }
 
     return targets;

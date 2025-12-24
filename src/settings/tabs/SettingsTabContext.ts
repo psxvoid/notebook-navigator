@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import type { App, Setting } from 'obsidian';
+import type { App, Setting, TextComponent } from 'obsidian';
 import type NotebookNavigatorPlugin from '../../main';
 
 export type AddSettingFunction = (createSetting: (setting: Setting) => void) => Setting;
@@ -45,7 +45,8 @@ export type DebouncedTextSettingConfigurer = (
     getValue: () => string,
     setValue: (value: string) => void,
     validator?: (value: string) => boolean,
-    onAfterUpdate?: () => void
+    onAfterUpdate?: () => void,
+    textAccessor?: { text?: TextComponent }
 ) => Setting;
 
 /** Optional configuration for debounced text area settings */

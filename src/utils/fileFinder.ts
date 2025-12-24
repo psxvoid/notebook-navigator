@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ import {
     getActiveHiddenFolders,
     getActiveHiddenTags
 } from './vaultProfiles';
+import { getActiveTags } from '../services/tagOperations/TagPropsAdapter';
 
 interface CollectPinnedPathsOptions {
     restrictToFolderPath?: string;
@@ -294,14 +295,14 @@ export function getFilesForTag(
                 return false;
             }
             // Check if the markdown file has tags using our cache
-            const fileTags = db.getCachedTags(file.path);
+            const fileTags = getActiveTags(db.getCachedTagsV2(file.path), settings);
             return fileTags.length === 0;
         });
     } else if (tag === TAGGED_TAG_ID) {
         // Include markdown files that have at least one tag, respecting hidden tag visibility
         const markdownFiles = baseFiles.filter(file => file.extension === 'md');
         filteredFiles = markdownFiles.filter(file => {
-            const fileTags = db.getCachedTags(file.path);
+            const fileTags = getActiveTags(db.getCachedTagsV2(file.path), settings);
             if (fileTags.length === 0) {
                 return false;
             }
@@ -337,7 +338,9 @@ export function getFilesForTag(
 
             // Filter files that have any of the collected tags (case-insensitive)
             filteredFiles = markdownFiles.filter(file => {
-                const fileTags = db.getCachedTags(file.path);
+                const fileTagsV2 = db.getCachedTagsV2(file.path);
+                const fileTags = getActiveTags(fileTagsV2, settings)
+
                 if (fileTags.length === 0) {
                     return false;
                 }

@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -845,6 +845,30 @@ export const STRINGS_PT_BR = {
                 name: 'Ocultar notas (perfil do cofre)',
                 desc: 'Lista separada por vírgulas de propriedades do frontmatter. Notas contendo qualquer uma dessas propriedades serão ocultadas (por exemplo, rascunho, privado, arquivado).',
                 placeholder: 'rascunho, privado'
+            },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Modo de etiqueta (perfil do cofre)',
+                    desc: 'O modo de etiqueta a ser usado para este perfil de cofre e exibido na árvore de etiquetas. "Nenhum" significa que as etiquetas normais estão sendo usadas. "Substituir" significa que apenas as propriedades de etiqueta personalizadas são visíveis e as etiquetas normais são ocultadas. "Mesclar" significa que tanto as propriedades de etiqueta quanto as etiquetas normais são visíveis.',
+                    options: {
+                        none: 'Nenhum',
+                        replace: 'Substituir',
+                        merge: 'Fusão',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Etiqueta principal (perfil do cofre)',
+                    desc: 'Permite especificar qual tag ou propriedade de tag será tratada como a tag "principal". As tags principais são usadas nas operações de edição de tags. "Padrão" significa que as tags normais serão definidas como tags principais. "A primeira propriedade da tag" significa que a primeira propriedade da tag na "lista de propriedades da tag" será definida como "principal".',
+                    options: {
+                        default: 'Padrão',
+                        firstTagProp: 'A primeira propriedade de etiqueta',
+                    }
+                },
+                tagPropList: {
+                    name: 'Propriedades da etiqueta (perfil do cofre)',
+                    desc: 'Lista de propriedades do frontmatter separadas por vírgulas. As propriedades listadas serão tratadas como fontes adicionais para tags (por exemplo, tags-base, tags-classe-de-notas).',
+                    placeholder: 'tags-base, tags-personalizadas',
+                },
             },
             excludedFileNamePatterns: {
                 name: 'Ocultar arquivos (perfil do cofre)',

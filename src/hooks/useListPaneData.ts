@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -63,6 +63,7 @@ import { getDBInstance } from 'src/storage/fileOperations';
 import { FeatureImageContentProvider } from 'src/services/content/FeatureImageContentProvider';
 import { CachedMetadata } from 'tests/stubs/obsidian';
 import { EMPTY_ARRAY, EMPTY_STRING } from 'src/utils/empty';
+import { getActiveTags } from 'src/services/tagOperations/TagPropsAdapter';
 
 const EMPTY_SEARCH_META = new Map<string, SearchResultMeta>();
 // Shared empty map used when no files are hidden to avoid allocations
@@ -150,7 +151,7 @@ export function useListPaneData({
     const isOmnisearchAvailable = omnisearchService?.isAvailable() ?? false;
     // Use Omnisearch only when selected, available, and there's a query
     const useOmnisearch = searchProvider === 'omnisearch' && isOmnisearchAvailable && hasSearchQuery;
-    const { hiddenFolders, hiddenFiles, hiddenFileNamePatterns, hiddenTags, fileVisibility } = activeProfile;
+    const { hiddenFolders, hiddenFiles, hiddenFileNamePatterns, hiddenTags, tagProps, fileVisibility } = activeProfile;
     const listConfig = useMemo(
         () => ({
             pinnedNotes: settings.pinnedNotes,
@@ -408,7 +409,7 @@ export function useListPaneData({
                 return fileMatchesFilterTokens(lowercaseName, emptyTags, tokens);
             }
 
-            const rawTags = db.getCachedTags(file.path);
+            const rawTags = getActiveTags(db.getCachedTagsV2(file.path), settings);
             const hasTags = rawTags.length > 0;
 
             // Early return if file must have tags but has none
@@ -430,7 +431,7 @@ export function useListPaneData({
 
         // Return the filtered results from the internal filter search
         return filteredByFilterSearch;
-    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult, getDB, searchTokens]);
+    }, [useOmnisearch, trimmedQuery, baseFiles, searchableNames, omnisearchResult, getDB, searchTokens, settings]);
 
     // Builds map of file paths that are normally hidden but shown via "show hidden items"
     const hiddenFileState = useMemo(() => {
@@ -441,7 +442,7 @@ export function useListPaneData({
         const db = getDB();
         const records = db.getFiles(files.map(file => file.path));
         const shouldCheckFolders = hiddenFolders.length > 0;
-        const shouldCheckFrontmatter = hiddenFiles.length > 0;
+        const shouldCheckFrontmatter = hiddenFiles.length > 0 || tagProps.length > 0;
         const shouldCheckFileNames = hiddenFileNamePatterns.length > 0;
         const fileNameMatcher = shouldCheckFileNames ? createHiddenFileNameMatcher(hiddenFileNamePatterns) : null;
         const folderHiddenCache = shouldCheckFolders ? new Map<string, boolean>() : null;
@@ -478,7 +479,7 @@ export function useListPaneData({
         });
 
         return result;
-    }, [files, getDB, hiddenFolders, hiddenFiles, hiddenFileNamePatterns, showHiddenItems, app]);
+    }, [files, getDB, hiddenFolders, hiddenFiles, hiddenFileNamePatterns, showHiddenItems, tagProps, app]);
 
     /**
      * Build the complete list of items for rendering, including:
@@ -526,7 +527,7 @@ export function useListPaneData({
         const hiddenTagVisibility = shouldDetectTags ? createHiddenTagVisibility(hiddenTags, showHiddenItems) : null;
         const fileHasTags = shouldDetectTags
             ? (file: TFile) => {
-                  const tags = db.getCachedTags(file.path);
+                  const tags = getActiveTags(db.getCachedTagsV2(file.path), settings);
                   if (!hiddenTagVisibility) {
                       return tags.length > 0;
                   }
@@ -760,7 +761,8 @@ export function useListPaneData({
         hiddenFileState,
         showHiddenItems,
         fileVisibility,
-        hiddenTags
+        hiddenTags,
+        settings
     ]);
 
     /**

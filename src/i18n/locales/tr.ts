@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -852,6 +852,30 @@ export const STRINGS_TR = {
                 name: 'Notları gizle (kasa profili)',
                 desc: 'Virgülle ayrılmış frontmatter özellikleri listesi. Bu özelliklerden herhangi birini içeren notlar gizlenecektir (örn. taslak, özel, arşiv).',
                 placeholder: 'taslak, özel'
+            },
+            tagProps: {
+                tagPropMode: {
+                    name: 'Etiket Modu (kasa profili)',
+                    desc: 'Bu kasa profili için kullanılacak ve etiket ağacında görüntülenecek etiket modu. "Yok" seçeneği, normal etiketlerin kullanıldığı anlamına gelir. "Değiştir" seçeneği, yalnızca özel etiket özelliklerinin görünür olduğu ve normal etiketlerin gizlendiği anlamına gelir. "Birleştir" seçeneği ise hem etiket özelliklerinin hem de normal etiketlerin görünür olduğu anlamına gelir.',
+                    options: {
+                        none: 'Hiçbiri',
+                        replace: 'Yer değiştirmek',
+                        merge: 'Birleştir',
+                    }
+                },
+                mainTagProp: {
+                    name: 'Ana Etiket (kasa profili)',
+                    desc: 'Hangi etiketin veya etiket özelliğinin "ana" etiket olarak kabul edileceğini belirtmenizi sağlar. Ana etiketler, etiket düzenleme işlemlerinde kullanılır. "Varsayılan" seçeneği, normal etiketlerin ana etiket olarak ayarlandığı anlamına gelir. "İlk Etiket Özelliği" seçeneği ise "etiket özelliği listesindeki" ilk etiket özelliğinin "ana" olarak ayarlandığı anlamına gelir.',
+                    options: {
+                        default: 'Varsayılan',
+                        firstTagProp: 'İlk Etiket Özelliği',
+                    }
+                },
+                tagPropList: {
+                    name: 'Etiket özellikleri (kasa profili)',
+                    desc: 'Virgülle ayrılmış ön bilgi özellikleri listesi. Listelenen özellikler, etiketler için ek kaynaklar olarak ele alınacaktır (örneğin, temel etiketler, nota sınıfı etiketleri).',
+                    placeholder: 'temel-etiketler, özel-etiketler',
+                },
             },
             excludedFileNamePatterns: {
                 name: 'Dosyaları gizle (kasa profili)',

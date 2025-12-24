@@ -1,6 +1,6 @@
 /*
  * Notebook Navigator - Plugin for Obsidian
- * Copyright (c) 2025 Johan Sanneblad
+ * Copyright (c) 2025 Johan Sanneblad, modifications by Pavel Sapehin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@ import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
 import { HiddenTagMatcher, matchesHiddenTagPattern, normalizeTagPathValue, createHiddenTagVisibility } from './tagPrefixMatcher';
 import { naturalCompare } from './sortUtils';
+import { NotebookNavigatorSettings } from '../settings';
+import { getActiveTags } from '../services/tagOperations/TagPropsAdapter';
 
 /**
  * Tag Tree Utilities
@@ -57,10 +59,11 @@ function getNoteCountCache(): WeakMap<TagTreeNode, number> {
  */
 export function buildTagTreeFromDatabase(
     db: IndexedDBStorage,
+    settings: NotebookNavigatorSettings,
     excludedFolderPatterns?: string[],
     includedPaths?: Set<string>,
     hiddenTagPatterns: string[] = [],
-    showHiddenItems = false
+    showHiddenItems = false,
 ): { tagTree: Map<string, TagTreeNode>; tagged: number; untagged: number; hiddenRootTags: Map<string, TagTreeNode> } {
     // Track all unique tags that exist in the vault
     const allTagsSet = new Set<string>();
@@ -116,9 +119,10 @@ export function buildTagTreeFromDatabase(
             return;
         }
 
+        const tags = getActiveTags(fileData.tags, settings)
+
         // Process tags from excluded files for hidden root tag tracking
         if (isExcluded) {
-            const tags = fileData.tags;
             if (!hasExcludedFolders || !tags || tags.length === 0) {
                 return;
             }
@@ -128,8 +132,6 @@ export function buildTagTreeFromDatabase(
             }
             return;
         }
-
-        const tags = fileData.tags;
 
         // Skip files with null tags (not extracted yet) or empty tags
         if (tags === null || tags.length === 0) {

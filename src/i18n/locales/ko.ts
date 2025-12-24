@@ -853,6 +853,30 @@ export const STRINGS_KO = {
                 desc: '쉼표로 구분된 frontmatter 속성 목록입니다. 이러한 속성 중 하나라도 포함된 노트는 숨겨집니다 (예: draft, private, archived).',
                 placeholder: 'draft, private'
             },
+            tagProps: {
+                tagPropMode: {
+                    name: '태그 모드(볼트 프로필)',
+                    desc: '이 볼트 프로필에 사용할 태그 모드이며 태그 트리에 표시됩니다. "없음"은 일반 태그를 사용함을 의미합니다. "교체"는 사용자 지정 태그 속성만 표시되고 일반 태그는 숨겨짐을 의미합니다. "병합"은 태그 속성과 일반 태그 모두 표시됨을 의미합니다.',
+                    options: {
+                        none: '없음',
+                        replace: '바꾸다',
+                        merge: '병합',
+                    }
+                },
+                mainTagProp: {
+                    name: '메인 태그(볼트 프로필)',
+                    desc: '어떤 태그 또는 태그 속성을 "기본" 태그로 지정할 수 있습니다. 기본 태그는 태그 편집 작업에 사용됩니다. "기본값"은 일반 태그를 기본 태그로 설정하는 것을 의미합니다. "첫 번째 태그 속성"은 "태그 속성 목록"에서 첫 번째 태그 속성을 "기본"으로 설정하는 것을 의미합니다.',
+                    options: {
+                        default: '기본',
+                        firstTagProp: '첫 번째 태그 속성',
+                    }
+                },
+                tagPropList: {
+                    name: '태그 속성(볼트 프로필)',
+                    desc: '쉼표로 구분된 프론트매터 속성 목록입니다. 나열된 속성은 태그의 추가 소스(예: base-tags, note-class-tags)로 처리됩니다.',
+                    placeholder: '기본-태그, 사용자-지정-태그',
+                },
+            },
             excludedFileNamePatterns: {
                 name: '파일 숨기기 (볼트 프로필)',
                 desc: '숨길 파일 이름 패턴의 쉼표로 구분된 목록입니다. * 와일드카드와 / 경로를 지원합니다 (예: temp-*, *.png, /assets/*).',
